@@ -1,0 +1,23 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/api/admin/regen/route": "/api/admin/regen",
+  "/api/auth/register/route": "/api/auth/register",
+  "/api/scrape/run/route": "/api/scrape/run",
+  "/api/recommendations/refresh/route": "/api/recommendations/refresh",
+  "/api/recommendations/latest/route": "/api/recommendations/latest",
+  "/api/scrape/status/route": "/api/scrape/status",
+  "/api/signals/[id]/route": "/api/signals/[id]",
+  "/api/signals/route": "/api/signals",
+  "/api/auth/[...nextauth]/route": "/api/auth/[...nextauth]",
+  "/onboarding/page": "/onboarding",
+  "/page": "/",
+  "/(app)/admin/page": "/admin",
+  "/(app)/profile/page": "/profile",
+  "/(app)/recommendations/page": "/recommendations",
+  "/(app)/dashboard/page": "/dashboard",
+  "/(app)/signals/[id]/page": "/signals/[id]",
+  "/(app)/signals/page": "/signals",
+  "/(app)/team/page": "/team",
+  "/(auth)/login/page": "/login",
+  "/(auth)/register/page": "/register"
+}

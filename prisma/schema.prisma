@@ -1,0 +1,275 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum TimeHorizon {
+  ONE_YEAR   // "1yr"
+  THREE_YEAR // "3yr"
+  FIVE_YEAR  // "5yr"
+  TEN_YEAR   // "10yr"
+}
+
+enum GeographicFlexibility {
+  LOCAL
+  NATIONAL
+  GLOBAL
+  REMOTE_ONLY
+}
+
+enum WorkEnvironment {
+  REMOTE
+  HYBRID
+  IN_PERSON
+  NO_PREFERENCE
+}
+
+enum VisaStatus {
+  CITIZEN
+  PERMANENT_RESIDENT
+  WORK_VISA
+  OTHER
+}
+
+enum LearningStyle {
+  COURSES
+  PROJECTS
+  MENTORSHIP
+  READING
+  MIXED
+}
+
+enum SignalCategory {
+  JOB_MARKET
+  CAPITAL_FLOWS
+  SKILL_DEMAND
+  DISPLACEMENT_RISK
+  POLICY
+}
+
+enum Sentiment {
+  POSITIVE
+  NEGATIVE
+  NEUTRAL
+}
+
+enum ScrapingStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+  PARTIAL
+}
+
+// ─── Auth (NextAuth / Auth.js) ────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts        Account[]
+  sessions        Session[]
+  profile         UserProfile?
+  recommendations CareerRecommendation[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── User Profile ─────────────────────────────────────────────────────────────
+
+model UserProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Identity & Context
+  currentRole       String?
+  currentIndustry   String?
+  yearsOfExperience Int?
+  educationLevel    String?
+  educationField    String?
+
+  // Skills
+  primarySkills  PrimarySkill[]
+  learningSkills String[]
+  desiredSkills  String[]
+
+  // Career Goals
+  targetRoles         String[]
+  targetIndustries    String[]
+  targetTimeHorizon   TimeHorizon?
+  incomeGoal          Int?
+  currentCompensation Int?
+
+  // Constraints & Preferences
+  geographicFlexibility     GeographicFlexibility?
+  currentLocation           String?
+  workEnvironmentPreference WorkEnvironment?
+  riskTolerance             Int? // 1–5
+  autonomyVsStatus          Int? // 1–5; 1=prestige-driven, 5=autonomy-driven
+  ambiguityTolerance        Int? // 1–5
+
+  // Life Stage
+  familyConstraints       Boolean?
+  visaStatus              VisaStatus?
+  entrepreneurialInterest Boolean?
+
+  // Network — { industry: string; strength: 1 | 2 | 3 }[]
+  networkStrengthByIndustry Json?
+
+  // Learning
+  hoursPerWeekForLearning Int?
+  preferredLearningStyle  LearningStyle?
+
+  // Onboarding progress (0 = not started, 5 = complete)
+  onboardingStep     Int     @default(0)
+  onboardingComplete Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PrimarySkill {
+  id               String      @id @default(cuid())
+  profileId        String
+  profile          UserProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name             String
+  proficiencyLevel Int // 1–5
+  yearsUsed        Float?
+
+  @@index([profileId])
+}
+
+// ─── Macro Signals ────────────────────────────────────────────────────────────
+
+model MacroSignal {
+  id                 String         @id @default(cuid())
+  source             String // e.g. "layoffs_fyi", "fred_api", "hn_hiring"
+  category           SignalCategory
+  topic              String // e.g. "fintech_hiring", "ai_engineer_demand"
+  headline           String
+  dataPoint          String         @db.Text
+  sentiment          Sentiment
+  magnitude          Int // 1–3; how significant is this signal
+  relevantIndustries String[]
+  relevantRoles      String[]
+  relevantSkills     String[]
+  scrapedAt          DateTime
+  sourceUrl          String
+  rawContent         String?        @db.Text // stored for re-parsing without re-scraping
+
+  createdAt DateTime @default(now())
+
+  recommendations CareerRecommendation[] @relation("RecommendationSignals")
+
+  @@index([category])
+  @@index([scrapedAt])
+  @@index([source])
+  @@index([sentiment])
+}
+
+// ─── AI Recommendations ───────────────────────────────────────────────────────
+
+model CareerRecommendation {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  generatedAt DateTime @default(now())
+  isLatest    Boolean  @default(true) // fast lookup; set false on new regen
+
+  // Skills — typed as JSON arrays per spec
+  skillsToAccelerate   Json // { skill: string; reason: string; urgency: "now"|"6mo"|"1yr" }[]
+  skillsToDeprioritize Json // { skill: string; reason: string }[]
+  skillsToWatch        Json // { skill: string; reason: string }[]
+
+  // Roles
+  rolesToTarget Json // { role: string; reason: string; timeHorizon: string }[]
+  rolesToAvoid  Json // { role: string; reason: string }[]
+
+  // Industries
+  industriesToMoveToward Json // { industry: string; reason: string; confidence: number }[]
+  industriesToAvoid      Json // { industry: string; reason: string }[]
+
+  // Positioning & Assessment
+  keyNarrativeToTell         String   @db.Text
+  incomeTrajectoryAssessment String   @db.Text
+  biggestRisks               String[]
+  biggestOpportunities       String[]
+
+  // Token usage for cost tracking
+  inputTokens  Int?
+  outputTokens Int?
+
+  signals MacroSignal[] @relation("RecommendationSignals")
+
+  @@index([userId, isLatest])
+  @@index([generatedAt])
+}
+
+// ─── Scraping Infrastructure ──────────────────────────────────────────────────
+
+model ScrapingRun {
+  id           String         @id @default(cuid())
+  scraperName  String
+  status       ScrapingStatus
+  signalsFound Int            @default(0)
+  signalsSaved Int            @default(0)
+  errorMessage String?        @db.Text
+  startedAt    DateTime
+  completedAt  DateTime?
+
+  @@index([scraperName])
+  @@index([startedAt])
+  @@index([status])
+}
