@@ -1,1 +1,0 @@
-self.__REACT_LOADABLE_MANIFEST='{"components/recommendations/skills-section.tsx -> ./skills-radar":{"id":12,"files":["static/chunks/340.75b7b8baa560f347.js","static/chunks/12.cbb02cdb9a37c21d.js"]}}';
