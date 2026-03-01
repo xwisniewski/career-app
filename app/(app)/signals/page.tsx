@@ -16,6 +16,9 @@ export default async function SignalsPage({ searchParams }: { searchParams: Sear
     source: params.source,
     sentiment: params.sentiment,
     page,
+  }).catch((err) => {
+    console.error("[signals page] getSignalsPage failed:", err);
+    throw err;
   });
 
   return (

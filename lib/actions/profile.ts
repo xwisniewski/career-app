@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { generateRecommendation } from "@/lib/ai/recommend";
+import { revalidatePath } from "next/cache";
 import {
   GeographicFlexibility,
   LearningStyle,
@@ -49,6 +50,7 @@ export async function updateSituation(data: {
     },
   });
 
+  revalidatePath("/profile");
   triggerRegen(userId);
   return { ok: true };
 }
@@ -85,6 +87,7 @@ export async function updateSkills(data: {
     }),
   ]);
 
+  revalidatePath("/profile");
   triggerRegen(userId);
   return { ok: true };
 }
@@ -119,6 +122,7 @@ export async function updateGoals(data: {
     },
   });
 
+  revalidatePath("/profile");
   triggerRegen(userId);
   return { ok: true };
 }
@@ -154,6 +158,7 @@ export async function updatePreferences(data: {
     },
   });
 
+  revalidatePath("/profile");
   triggerRegen(userId);
   return { ok: true };
 }
@@ -175,6 +180,7 @@ export async function updateLearning(data: {
     },
   });
 
+  revalidatePath("/profile");
   triggerRegen(userId);
   return { ok: true };
 }
