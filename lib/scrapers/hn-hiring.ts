@@ -65,7 +65,7 @@ export class HnHiringScraper implements Scraper {
         return [];
       }
 
-      const comments = await getTopComments(threadId, 40);
+      const comments = await getTopComments(threadId, 15);
       const now = new Date();
 
       for (const comment of comments) {

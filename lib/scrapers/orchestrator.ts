@@ -15,12 +15,7 @@ const SCRAPERS: Scraper[] = [
   new RssScraper(),
 ];
 
-// Delay between haiku calls to avoid rate limiting
-const CATEGORIZE_DELAY_MS = 100;
-
-function delay(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
-}
+const CATEGORIZE_BATCH_SIZE = 8; // parallel haiku calls per batch
 
 // Check if a signal with the same source + headline already exists
 async function isDuplicate(source: string, headline: string): Promise<boolean> {
@@ -50,42 +45,41 @@ async function runScraper(scraper: Scraper): Promise<{
     return { signalsFound: 0, signalsSaved: 0, errors };
   }
 
-  for (const raw of rawSignals) {
-    try {
-      const parsed = await categorizeSignal(raw);
-      if (!parsed) {
-        errors.push(`Categorization returned null for ${raw.sourceUrl}`);
-        continue;
-      }
-
-      // Dedup check
-      if (await isDuplicate(parsed.source, parsed.headline)) {
-        continue;
-      }
-
-      await db.macroSignal.create({
-        data: {
-          source: parsed.source,
-          sourceUrl: parsed.sourceUrl,
-          rawContent: parsed.rawContent,
-          scrapedAt: parsed.scrapedAt,
-          category: parsed.category,
-          topic: parsed.topic,
-          headline: parsed.headline,
-          dataPoint: parsed.dataPoint,
-          sentiment: parsed.sentiment,
-          magnitude: parsed.magnitude,
-          relevantIndustries: parsed.relevantIndustries,
-          relevantRoles: parsed.relevantRoles,
-          relevantSkills: parsed.relevantSkills,
-        },
-      });
-
-      signalsSaved++;
-      await delay(CATEGORIZE_DELAY_MS);
-    } catch (err) {
-      errors.push(`Failed to save signal from ${raw.sourceUrl}: ${String(err)}`);
-    }
+  // Process in parallel batches
+  for (let i = 0; i < rawSignals.length; i += CATEGORIZE_BATCH_SIZE) {
+    const batch = rawSignals.slice(i, i + CATEGORIZE_BATCH_SIZE);
+    await Promise.all(
+      batch.map(async (raw) => {
+        try {
+          const parsed = await categorizeSignal(raw);
+          if (!parsed) {
+            errors.push(`Categorization returned null for ${raw.sourceUrl}`);
+            return;
+          }
+          if (await isDuplicate(parsed.source, parsed.headline)) return;
+          await db.macroSignal.create({
+            data: {
+              source: parsed.source,
+              sourceUrl: parsed.sourceUrl,
+              rawContent: parsed.rawContent,
+              scrapedAt: parsed.scrapedAt,
+              category: parsed.category,
+              topic: parsed.topic,
+              headline: parsed.headline,
+              dataPoint: parsed.dataPoint,
+              sentiment: parsed.sentiment,
+              magnitude: parsed.magnitude,
+              relevantIndustries: parsed.relevantIndustries,
+              relevantRoles: parsed.relevantRoles,
+              relevantSkills: parsed.relevantSkills,
+            },
+          });
+          signalsSaved++;
+        } catch (err) {
+          errors.push(`Failed to save signal from ${raw.sourceUrl}: ${String(err)}`);
+        }
+      })
+    );
   }
 
   return { signalsFound, signalsSaved, errors };
