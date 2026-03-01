@@ -79,7 +79,6 @@ function SignalGridCard({ signal }: { signal: SignalDetail }) {
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-gray-400 hover:text-gray-700 transition-colors"
-            onClick={(e) => e.stopPropagation()}
           >
             ↗
           </a>
