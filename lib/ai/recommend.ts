@@ -53,7 +53,7 @@ export async function generateRecommendation(userId: string): Promise<string> {
   // 2. Fetch and score top signals
   const allSignals = await db.macroSignal.findMany({
     orderBy: { scrapedAt: "desc" },
-    take: 200,
+    take: 150,
   });
 
   const userIndustries = [
@@ -73,15 +73,15 @@ export async function generateRecommendation(userId: string): Promise<string> {
   const scored = allSignals
     .map((s) => ({ signal: s, score: scoreSignal(s, userIndustries, userRoles, userSkills) }))
     .sort((a, b) => b.score - a.score)
-    .slice(0, 50)
+    .slice(0, 25)
     .map((x) => x.signal);
 
   // 3. Call Claude Sonnet
   const prompt = buildRecommendationPrompt(profile, scored);
 
   const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 4096,
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 8000,
     messages: [{ role: "user", content: prompt }],
   });
 

@@ -4,12 +4,20 @@ import { useState, useTransition } from "react";
 
 export function RecommendationsEmptyState() {
   const [isPending, startTransition] = useTransition();
-  const [queued, setQueued] = useState(false);
+  const [status, setStatus] = useState<"idle" | "done" | "error">("idle");
+  const [errMsg, setErrMsg] = useState<string>("");
 
   function handleGenerate() {
     startTransition(async () => {
-      await fetch("/api/recommendations/refresh", { method: "POST" });
-      setQueued(true);
+      setStatus("idle");
+      const res = await fetch("/api/recommendations/refresh", { method: "POST" });
+      if (res.ok) {
+        setStatus("done");
+      } else {
+        const body = await res.json().catch(() => ({}));
+        setErrMsg(body.error ?? `HTTP ${res.status}`);
+        setStatus("error");
+      }
     });
   }
 
@@ -25,14 +33,19 @@ export function RecommendationsEmptyState() {
       </p>
       <button
         onClick={handleGenerate}
-        disabled={isPending || queued}
+        disabled={isPending || status === "done"}
         className="btn-primary"
       >
-        {isPending ? "Queuing…" : queued ? "Generation queued ✓" : "Generate first report"}
+        {isPending ? "Generating…" : status === "done" ? "Generated ✓" : "Generate first report"}
       </button>
-      {queued && (
+      {status === "done" && (
         <p className="text-xs text-gray-400 mt-3">
-          Check back in a few minutes — reload the page when ready.
+          Report ready — reload the page to view it.
+        </p>
+      )}
+      {status === "error" && (
+        <p className="text-xs text-red-500 mt-3">
+          Generation failed: {errMsg}. Check that your profile is complete.
         </p>
       )}
     </div>
