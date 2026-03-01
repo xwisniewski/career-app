@@ -16,7 +16,7 @@ const SCRAPERS: Scraper[] = [
 ];
 
 // Delay between haiku calls to avoid rate limiting
-const CATEGORIZE_DELAY_MS = 300;
+const CATEGORIZE_DELAY_MS = 100;
 
 function delay(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
@@ -94,41 +94,57 @@ async function runScraper(scraper: Scraper): Promise<{
 export async function runOrchestrator(): Promise<void> {
   console.log("[orchestrator] Starting scraping run");
 
-  for (const scraper of SCRAPERS) {
-    const run = await db.scrapingRun.create({
-      data: {
-        scraperName: scraper.name,
-        status: ScrapingStatus.RUNNING,
-        startedAt: new Date(),
-      },
-    });
+  // Clean up any stuck RUNNING records from previous interrupted runs
+  await db.scrapingRun.updateMany({
+    where: {
+      status: ScrapingStatus.RUNNING,
+      startedAt: { lt: new Date(Date.now() - 10 * 60 * 1000) }, // older than 10 min
+    },
+    data: { status: ScrapingStatus.FAILED, errorMessage: "Timed out", completedAt: new Date() },
+  });
 
-    const { signalsFound, signalsSaved, errors } = await runScraper(scraper);
+  // Create run records for all scrapers upfront
+  const runs = await Promise.all(
+    SCRAPERS.map((scraper) =>
+      db.scrapingRun.create({
+        data: { scraperName: scraper.name, status: ScrapingStatus.RUNNING, startedAt: new Date() },
+      })
+    )
+  );
 
-    const hasErrors = errors.length > 0;
-    const status: ScrapingStatus =
-      signalsFound === 0 && hasErrors
-        ? ScrapingStatus.FAILED
-        : hasErrors
-        ? ScrapingStatus.PARTIAL
-        : ScrapingStatus.SUCCESS;
+  // Run all scrapers in parallel
+  const results = await Promise.all(SCRAPERS.map((scraper) => runScraper(scraper)));
 
-    await db.scrapingRun.update({
-      where: { id: run.id },
-      data: {
-        status,
-        signalsFound,
-        signalsSaved,
-        errorMessage: errors.length > 0 ? errors.slice(0, 5).join("\n") : null,
-        completedAt: new Date(),
-      },
-    });
+  // Update run records
+  await Promise.all(
+    results.map(async ({ signalsFound, signalsSaved, errors }, i) => {
+      const run = runs[i];
+      const scraper = SCRAPERS[i];
+      const hasErrors = errors.length > 0;
+      const status: ScrapingStatus =
+        signalsFound === 0 && hasErrors
+          ? ScrapingStatus.FAILED
+          : hasErrors
+          ? ScrapingStatus.PARTIAL
+          : ScrapingStatus.SUCCESS;
 
-    console.log(
-      `[orchestrator] ${scraper.name}: ${signalsSaved}/${signalsFound} saved, status=${status}` +
-        (errors.length ? `, ${errors.length} errors` : "")
-    );
-  }
+      await db.scrapingRun.update({
+        where: { id: run.id },
+        data: {
+          status,
+          signalsFound,
+          signalsSaved,
+          errorMessage: errors.length > 0 ? errors.slice(0, 5).join("\n") : null,
+          completedAt: new Date(),
+        },
+      });
+
+      console.log(
+        `[orchestrator] ${scraper.name}: ${signalsSaved}/${signalsFound} saved, status=${status}` +
+          (errors.length ? `, ${errors.length} errors` : "")
+      );
+    })
+  );
 
   console.log("[orchestrator] Done");
 }
