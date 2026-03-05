@@ -27,97 +27,93 @@ export function IntelligenceBrief({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       {/* Column header */}
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-sm font-semibold text-gray-900">Intelligence Brief</h2>
-          <p className="text-xs text-gray-400 mt-0.5">Your market, synthesized</p>
+          <h2 className="text-[15px] font-semibold text-white tracking-[-0.01em]">Intelligence Brief</h2>
+          <p className="text-[13px] text-zinc-400 mt-0.5">Your market, synthesized</p>
         </div>
         {recommendation && (
           <button
             onClick={handleRefresh}
             disabled={isPending}
-            className="text-xs text-gray-400 hover:text-gray-700 transition-colors disabled:opacity-50"
+            className="text-[12px] text-zinc-500 hover:text-zinc-200 transition-all duration-150 disabled:opacity-40"
           >
-            {isPending ? "Refreshing…" : refreshed ? "Queued ✓" : "↻ Refresh"}
+            {isPending ? "Refreshing…" : refreshed ? "Queued" : "Refresh"}
           </button>
         )}
       </div>
 
       {recommendation ? (
-        <div className="flex flex-col gap-5 overflow-y-auto max-h-[calc(100vh-220px)] pr-1">
+        <div className="flex flex-col gap-3 overflow-y-auto max-h-[calc(100vh-240px)] pr-1">
           {/* Narrative */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
-              Current Positioning
-            </p>
-            <p className="text-sm text-gray-700 leading-relaxed">{recommendation.keyNarrativeToTell}</p>
+          <div className="rounded-[10px] border border-zinc-800 p-5">
+            <p className="label mb-2.5">Current Positioning</p>
+            <p className="text-[14px] text-zinc-300 leading-relaxed">{recommendation.keyNarrativeToTell}</p>
           </div>
 
           {/* Income trajectory */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
-              Income Trajectory
-            </p>
-            <p className="text-sm text-gray-700 leading-relaxed">
+          <div className="rounded-[10px] border border-zinc-800 p-5">
+            <p className="label mb-2.5">Income Trajectory</p>
+            <p className="text-[14px] text-zinc-300 leading-relaxed">
               {recommendation.incomeTrajectoryAssessment}
             </p>
           </div>
 
-          {/* Risks + Opportunities */}
-          <div className="grid grid-cols-1 gap-3">
-            {recommendation.biggestOpportunities.length > 0 && (
-              <div className="bg-green-50 rounded-lg border border-green-100 p-4">
-                <p className="text-xs font-medium text-green-700 uppercase tracking-wide mb-2">
-                  Biggest Opportunities
-                </p>
-                <ul className="space-y-1.5">
-                  {recommendation.biggestOpportunities.map((o, i) => (
-                    <li key={i} className="text-sm text-green-800 flex gap-2">
-                      <span className="shrink-0 mt-0.5">→</span>
-                      <span>{o}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {recommendation.biggestRisks.length > 0 && (
-              <div className="bg-red-50 rounded-lg border border-red-100 p-4">
-                <p className="text-xs font-medium text-red-700 uppercase tracking-wide mb-2">
-                  Biggest Risks
-                </p>
-                <ul className="space-y-1.5">
-                  {recommendation.biggestRisks.map((r, i) => (
-                    <li key={i} className="text-sm text-red-800 flex gap-2">
-                      <span className="shrink-0 mt-0.5">⚠</span>
-                      <span>{r}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
+          {/* Opportunities */}
+          {recommendation.biggestOpportunities.length > 0 && (
+            <div className="rounded-[10px] border border-emerald-500/20 bg-emerald-500/10 p-5">
+              <p className="text-[11px] font-medium text-emerald-400 uppercase tracking-wider mb-2.5">
+                Biggest Opportunities
+              </p>
+              <ul className="space-y-2">
+                {recommendation.biggestOpportunities.map((o, i) => (
+                  <li key={i} className="text-[13px] text-emerald-300 flex gap-2 leading-snug">
+                    <span className="shrink-0 mt-0.5 text-emerald-400">→</span>
+                    <span>{o}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-          <p className="text-xs text-gray-400 text-right">
+          {/* Risks */}
+          {recommendation.biggestRisks.length > 0 && (
+            <div className="rounded-[10px] border border-red-500/20 bg-red-500/10 p-5">
+              <p className="text-[11px] font-medium text-red-400 uppercase tracking-wider mb-2.5">
+                Biggest Risks
+              </p>
+              <ul className="space-y-2">
+                {recommendation.biggestRisks.map((r, i) => (
+                  <li key={i} className="text-[13px] text-red-300 flex gap-2 leading-snug">
+                    <span className="shrink-0 mt-0.5 text-red-400">—</span>
+                    <span>{r}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <p className="text-[11px] text-zinc-400 text-right">
             Generated {timeAgo(recommendation.generatedAt)}
           </p>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-lg border border-gray-200">
-          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-            <span className="text-lg">🧠</span>
+        <div className="flex flex-col items-center justify-center py-16 text-center rounded-[10px] border border-zinc-800">
+          <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center mb-3">
+            <span className="w-2 h-2 rounded-full bg-zinc-600 block" />
           </div>
-          <p className="text-sm font-medium text-gray-700">No brief generated yet</p>
-          <p className="text-xs text-gray-400 mt-1 mb-4 max-w-xs">
-            Your first intelligence brief will be generated once signals are ingested and matched to your profile.
+          <p className="text-[14px] font-medium text-zinc-300">No brief generated yet</p>
+          <p className="text-[13px] text-zinc-400 mt-1 mb-5 max-w-xs leading-relaxed">
+            Your first brief will be generated once signals are ingested and matched to your profile.
           </p>
           <button
             onClick={handleRefresh}
             disabled={isPending}
-            className="btn-primary text-xs"
+            className="btn-primary text-[13px]"
           >
-            {isPending ? "Queuing…" : refreshed ? "Queued ✓" : "Generate first brief"}
+            {isPending ? "Queuing…" : refreshed ? "Queued" : "Generate first brief"}
           </button>
         </div>
       )}

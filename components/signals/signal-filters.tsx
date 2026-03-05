@@ -49,7 +49,7 @@ export function SignalFilters({ sources }: { sources: string[] }) {
     <div className="flex flex-col gap-4">
       {/* Search */}
       <div className="relative">
-        <span className="absolute inset-y-0 left-3 flex items-center text-gray-400 pointer-events-none">
+        <span className="absolute inset-y-0 left-3 flex items-center text-zinc-500 pointer-events-none">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
           </svg>
@@ -65,7 +65,7 @@ export function SignalFilters({ sources }: { sources: string[] }) {
 
       {/* Category */}
       <div>
-        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Category</p>
+        <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-2">Category</p>
         <div className="flex flex-wrap gap-1.5">
           {CATEGORIES.map(({ value, label }) => (
             <button
@@ -73,8 +73,8 @@ export function SignalFilters({ sources }: { sources: string[] }) {
               onClick={() => update("category", value)}
               className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
                 category === value
-                  ? "bg-gray-900 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-zinc-700 text-white"
+                  : "bg-zinc-800/60 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
               }`}
             >
               {label}
@@ -85,7 +85,7 @@ export function SignalFilters({ sources }: { sources: string[] }) {
 
       {/* Sentiment */}
       <div>
-        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Signal type</p>
+        <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-2">Signal type</p>
         <div className="flex flex-wrap gap-1.5">
           {SENTIMENTS.map(({ value, label }) => (
             <button
@@ -93,8 +93,8 @@ export function SignalFilters({ sources }: { sources: string[] }) {
               onClick={() => update("sentiment", value)}
               className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
                 sentiment === value
-                  ? "bg-gray-900 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-zinc-700 text-white"
+                  : "bg-zinc-800/60 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
               }`}
             >
               {label}
@@ -106,7 +106,7 @@ export function SignalFilters({ sources }: { sources: string[] }) {
       {/* Source */}
       {sources.length > 0 && (
         <div>
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Source</p>
+          <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-2">Source</p>
           <select
             value={source}
             onChange={(e) => update("source", e.target.value)}
@@ -124,7 +124,7 @@ export function SignalFilters({ sources }: { sources: string[] }) {
       {hasFilters && (
         <button
           onClick={() => router.replace(pathname)}
-          className="text-xs text-gray-400 hover:text-gray-700 transition-colors text-left"
+          className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors text-left"
         >
           × Clear all filters
         </button>

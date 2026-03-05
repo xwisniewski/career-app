@@ -7,7 +7,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!session) redirect("/login");
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-zinc-950 flex">
       <AppNav
         user={{
           name: session.user.name,
@@ -15,7 +15,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           role: session.user.role ?? "USER",
         }}
       />
-      <div className="max-w-screen-xl mx-auto px-4 py-6">{children}</div>
+      <main className="flex-1 ml-[200px] min-h-screen">
+        <div className="max-w-screen-xl mx-auto px-8 py-8">{children}</div>
+      </main>
     </div>
   );
 }

@@ -20,58 +20,61 @@ export function AppNav({ user }: Props) {
   const pathname = usePathname();
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-      <div className="max-w-screen-xl mx-auto px-4 h-14 flex items-center justify-between gap-6">
-        {/* Logo */}
-        <Link href="/dashboard" className="text-sm font-bold text-gray-900 shrink-0">
-          Career Intelligence
+    <aside className="w-[200px] fixed top-0 left-0 h-screen bg-zinc-950 border-r border-zinc-800/60 flex flex-col z-40">
+      {/* Logo */}
+      <div className="px-5 py-5 border-b border-zinc-800/60">
+        <Link
+          href="/dashboard"
+          className="text-[14px] font-semibold text-white tracking-tight leading-tight"
+        >
+          Career<br />Intelligence
         </Link>
+      </div>
 
-        {/* Nav links */}
-        <nav className="hidden md:flex items-center gap-1">
-          {NAV_LINKS.map(({ href, label }) => {
-            const active = pathname.startsWith(href);
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-                  active
-                    ? "bg-gray-100 text-gray-900 font-medium"
-                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
-                }`}
-              >
-                {label}
-              </Link>
-            );
-          })}
-          {user.role === "ADMIN" && (
+      {/* Nav links */}
+      <nav className="flex flex-col gap-0.5 p-3 flex-1">
+        {NAV_LINKS.map(({ href, label }) => {
+          const active = pathname.startsWith(href);
+          return (
             <Link
-              href="/admin"
-              className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-                pathname.startsWith("/admin")
-                  ? "bg-gray-100 text-gray-900 font-medium"
-                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+              key={href}
+              href={href}
+              className={`px-3 py-2 rounded-md text-[13px] transition-all duration-150 ${
+                active
+                  ? "bg-zinc-800 text-white font-medium"
+                  : "text-zinc-500 hover:text-white hover:bg-zinc-800/60"
               }`}
             >
-              Admin
+              {label}
             </Link>
-          )}
-        </nav>
-
-        {/* User menu */}
-        <div className="flex items-center gap-3 shrink-0">
-          <span className="text-sm text-gray-500 hidden sm:block">
-            {user.name ?? user.email}
-          </span>
-          <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            className="text-sm text-gray-400 hover:text-gray-900 transition-colors"
+          );
+        })}
+        {user.role === "ADMIN" && (
+          <Link
+            href="/admin"
+            className={`px-3 py-2 rounded-md text-[13px] transition-all duration-150 ${
+              pathname.startsWith("/admin")
+                ? "bg-zinc-800 text-white font-medium"
+                : "text-zinc-500 hover:text-white hover:bg-zinc-800/60"
+            }`}
           >
-            Sign out
-          </button>
-        </div>
+            Admin
+          </Link>
+        )}
+      </nav>
+
+      {/* User */}
+      <div className="p-4 border-t border-zinc-800/60">
+        <p className="text-[12px] text-zinc-500 truncate mb-2">
+          {user.name ?? user.email}
+        </p>
+        <button
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          className="text-[12px] text-zinc-600 hover:text-white transition-colors duration-150"
+        >
+          Sign out
+        </button>
       </div>
-    </header>
+    </aside>
   );
 }

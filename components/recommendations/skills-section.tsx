@@ -5,13 +5,13 @@ import type { FullRecommendation, RecommendationProfile } from "@/lib/data/recom
 
 const SkillsRadar = dynamic(
   () => import("./skills-radar").then((m) => m.SkillsRadar),
-  { ssr: false, loading: () => <div className="h-64 bg-gray-50 rounded-lg animate-pulse" /> }
+  { ssr: false, loading: () => <div className="h-64 bg-zinc-900 rounded-[10px] animate-pulse" /> }
 );
 
 const URGENCY = {
-  now: { label: "Now", className: "bg-red-100 text-red-700" },
-  "6mo": { label: "6 mo", className: "bg-yellow-100 text-yellow-700" },
-  "1yr": { label: "1 yr", className: "bg-gray-100 text-gray-600" },
+  now: { label: "Now", className: "bg-red-500/10 text-red-400 border border-red-500/20" },
+  "6mo": { label: "6 mo", className: "bg-amber-500/10 text-amber-400 border border-amber-500/20" },
+  "1yr": { label: "1 yr", className: "bg-zinc-800 text-zinc-400 border border-zinc-700" },
 };
 
 type Props = {
@@ -35,42 +35,45 @@ export function SkillsSection({ rec, profile }: Props) {
     return { skill: s.name, current: s.proficiencyLevel, recommended };
   });
 
+  // Add recommended skills the user doesn't have yet (current = 0)
+  const existingSkillNames = new Set(radarData.map((d) => d.skill.toLowerCase()));
+  for (const s of rec.skillsToAccelerate) {
+    if (!existingSkillNames.has(s.skill.toLowerCase())) {
+      const targetLevel = s.urgency === "now" ? 3 : s.urgency === "6mo" ? 2 : 1;
+      radarData.push({ skill: s.skill, current: 0, recommended: targetLevel });
+    }
+  }
+
   return (
     <section id="skills" className="flex flex-col gap-6">
-      <SectionHeader
-        label="Skills Radar"
-        description="What to build, what to dial back, what to watch."
-      />
+      <div className="section-header">
+        <h2 className="text-[20px] font-semibold text-white tracking-[-0.02em]">Skills Radar</h2>
+        <p className="text-[14px] text-zinc-500">What to build, what to dial back, what to watch.</p>
+      </div>
 
-      {/* Radar chart */}
       {radarData.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-4">
-            Current vs. recommended skill levels
-          </p>
+        <div className="rounded-[10px] border border-zinc-800 p-6">
+          <p className="label mb-4">Current vs. recommended skill levels</p>
           <SkillsRadar data={radarData} />
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Accelerate */}
         {rec.skillsToAccelerate.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">
-              Accelerate
-            </p>
+          <div className="rounded-[10px] border border-zinc-800 p-5">
+            <p className="label mb-4">Accelerate</p>
             <ul className="space-y-4">
               {rec.skillsToAccelerate.map((s, i) => {
                 const urgency = URGENCY[s.urgency] ?? URGENCY["1yr"];
                 return (
                   <li key={i}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-semibold text-gray-900">{s.skill}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded font-medium ${urgency.className}`}>
+                      <span className="text-[14px] font-semibold text-zinc-100">{s.skill}</span>
+                      <span className={`text-[11px] px-2 py-0.5 rounded font-medium ${urgency.className}`}>
                         {urgency.label}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500 leading-relaxed">{s.reason}</p>
+                    <p className="text-[13px] text-zinc-500 leading-relaxed">{s.reason}</p>
                   </li>
                 );
               })}
@@ -79,36 +82,30 @@ export function SkillsSection({ rec, profile }: Props) {
         )}
 
         <div className="flex flex-col gap-4">
-          {/* Watch */}
           {rec.skillsToWatch.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <p className="text-xs font-semibold text-yellow-600 uppercase tracking-wide mb-3">
-                Watch
-              </p>
+            <div className="rounded-[10px] border border-zinc-800 p-5">
+              <p className="label mb-3" style={{ color: "#fbbf24" }}>Watch</p>
               <ul className="space-y-3">
                 {rec.skillsToWatch.map((s, i) => (
                   <li key={i}>
-                    <span className="text-sm font-medium text-gray-800">{s.skill}</span>
-                    <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{s.reason}</p>
+                    <span className="text-[14px] font-medium text-zinc-200">{s.skill}</span>
+                    <p className="text-[13px] text-zinc-500 mt-0.5 leading-relaxed">{s.reason}</p>
                   </li>
                 ))}
               </ul>
             </div>
           )}
 
-          {/* Deprioritize */}
           {rec.skillsToDeprioritize.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-                Deprioritize
-              </p>
+            <div className="rounded-[10px] border border-zinc-800 p-5">
+              <p className="label mb-3">Deprioritize</p>
               <ul className="space-y-3">
                 {rec.skillsToDeprioritize.map((s, i) => (
                   <li key={i}>
-                    <span className="text-sm font-medium text-gray-500 line-through decoration-gray-300">
+                    <span className="text-[14px] font-medium text-zinc-600 line-through decoration-zinc-700">
                       {s.skill}
                     </span>
-                    <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{s.reason}</p>
+                    <p className="text-[13px] text-zinc-400 mt-0.5 leading-relaxed">{s.reason}</p>
                   </li>
                 ))}
               </ul>
@@ -117,14 +114,5 @@ export function SkillsSection({ rec, profile }: Props) {
         </div>
       </div>
     </section>
-  );
-}
-
-function SectionHeader({ label, description }: { label: string; description: string }) {
-  return (
-    <div>
-      <h2 className="text-lg font-semibold text-gray-900">{label}</h2>
-      <p className="text-sm text-gray-400 mt-0.5">{description}</p>
-    </div>
   );
 }

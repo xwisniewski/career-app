@@ -16,6 +16,13 @@ const CATEGORY_OPTIONS: { value: Category; label: string }[] = [
   { value: "POLICY", label: "Policy" },
 ];
 
+const SENTIMENT_OPTIONS: { value: Sentiment; label: string }[] = [
+  { value: "ALL", label: "All" },
+  { value: "POSITIVE", label: "Opportunity" },
+  { value: "NEGATIVE", label: "Risk" },
+  { value: "NEUTRAL", label: "Watch" },
+];
+
 export function SignalFeed({ signals }: { signals: SignalRow[] }) {
   const [category, setCategory] = useState<Category>("ALL");
   const [sentiment, setSentiment] = useState<Sentiment>("ALL");
@@ -29,11 +36,11 @@ export function SignalFeed({ signals }: { signals: SignalRow[] }) {
   }, [signals, category, sentiment]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       {/* Column header */}
       <div>
-        <h2 className="text-sm font-semibold text-gray-900">Signal Feed</h2>
-        <p className="text-xs text-gray-400 mt-0.5">Macro signals matched to your profile</p>
+        <h2 className="text-[15px] font-semibold text-white tracking-[-0.01em]">Signal Feed</h2>
+        <p className="text-[13px] text-zinc-400 mt-0.5">Macro signals matched to your profile</p>
       </div>
 
       {/* Filters */}
@@ -43,10 +50,10 @@ export function SignalFeed({ signals }: { signals: SignalRow[] }) {
             <button
               key={value}
               onClick={() => setCategory(value)}
-              className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+              className={`px-2.5 py-1 rounded-full text-[12px] font-medium transition-all duration-150 ${
                 category === value
-                  ? "bg-gray-900 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-zinc-700 text-white"
+                  : "bg-zinc-800/60 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
               }`}
             >
               {label}
@@ -54,37 +61,37 @@ export function SignalFeed({ signals }: { signals: SignalRow[] }) {
           ))}
         </div>
         <div className="flex gap-1">
-          {(["ALL", "POSITIVE", "NEGATIVE", "NEUTRAL"] as Sentiment[]).map((s) => (
+          {SENTIMENT_OPTIONS.map(({ value, label }) => (
             <button
-              key={s}
-              onClick={() => setSentiment(s)}
-              className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
-                sentiment === s
-                  ? "bg-gray-900 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              key={value}
+              onClick={() => setSentiment(value)}
+              className={`px-2.5 py-1 rounded-full text-[12px] font-medium transition-all duration-150 ${
+                sentiment === value
+                  ? "bg-zinc-700 text-white"
+                  : "bg-zinc-800/60 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
               }`}
             >
-              {s === "ALL" ? "All" : s === "POSITIVE" ? "🟢 Opportunity" : s === "NEGATIVE" ? "🔴 Risk" : "🟡 Watch"}
+              {label}
             </button>
           ))}
         </div>
       </div>
 
       {/* Signal list */}
-      <div className="flex flex-col gap-3 overflow-y-auto max-h-[calc(100vh-220px)] pr-1">
+      <div className="flex flex-col gap-2.5 overflow-y-auto max-h-[calc(100vh-240px)] pr-1">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-              <span className="text-lg">📡</span>
+            <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center mb-3">
+              <span className="w-2 h-2 rounded-full bg-zinc-600 block" />
             </div>
-            <p className="text-sm font-medium text-gray-700">No signals yet</p>
-            <p className="text-xs text-gray-400 mt-1 max-w-xs">
-              Signals populate once the scraping jobs run. Check back after the first cron run or trigger one manually from /admin.
+            <p className="text-[14px] font-medium text-zinc-300">No signals yet</p>
+            <p className="text-[13px] text-zinc-400 mt-1 max-w-xs leading-relaxed">
+              Signals populate once the scraping jobs run. Trigger one manually from /admin.
             </p>
           </div>
         ) : (
           <>
-            <p className="text-xs text-gray-400">{filtered.length} signal{filtered.length !== 1 ? "s" : ""}</p>
+            <p className="text-[12px] text-zinc-400">{filtered.length} signal{filtered.length !== 1 ? "s" : ""}</p>
             {filtered.map((signal) => (
               <SignalCard key={signal.id} signal={signal} />
             ))}

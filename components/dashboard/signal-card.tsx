@@ -1,9 +1,9 @@
 import type { SignalRow } from "@/lib/data/dashboard";
 
 const SENTIMENT_CONFIG = {
-  POSITIVE: { dot: "bg-green-500", badge: "bg-green-50 text-green-700", label: "Opportunity" },
-  NEGATIVE: { dot: "bg-red-500", badge: "bg-red-50 text-red-700", label: "Risk" },
-  NEUTRAL: { dot: "bg-yellow-400", badge: "bg-yellow-50 text-yellow-700", label: "Watch" },
+  POSITIVE: { dot: "bg-emerald-500", badge: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20", label: "Opportunity" },
+  NEGATIVE: { dot: "bg-red-500", badge: "bg-red-500/10 text-red-400 border border-red-500/20", label: "Risk" },
+  NEUTRAL: { dot: "bg-amber-400", badge: "bg-amber-500/10 text-amber-400 border border-amber-500/20", label: "Watch" },
 };
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -30,44 +30,43 @@ export function SignalCard({ signal }: { signal: SignalRow }) {
       href={signal.sourceUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="block p-4 rounded-lg border border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm transition-all group"
+      className="block p-4 rounded-[10px] border border-zinc-800 bg-zinc-900 hover:border-zinc-700 hover:bg-zinc-800/80 transition-all duration-150 group"
     >
       {/* Header row */}
-      <div className="flex items-center justify-between gap-2 mb-2">
+      <div className="flex items-center justify-between gap-2 mb-2.5">
         <div className="flex items-center gap-2 min-w-0">
-          <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full ${cfg.badge}`}>
+          <span className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-full ${cfg.badge}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
             {cfg.label}
           </span>
-          <span className="text-xs text-gray-400 truncate">
+          <span className="text-[11px] text-zinc-400 truncate">
             {CATEGORY_LABEL[signal.category] ?? signal.category}
           </span>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
-          {/* Magnitude bars */}
+        <div className="flex items-center gap-1 shrink-0">
           {[1, 2, 3].map((n) => (
             <span
               key={n}
-              className={`w-1 h-3 rounded-sm ${n <= signal.magnitude ? "bg-gray-700" : "bg-gray-200"}`}
+              className={`w-[3px] h-3 rounded-full ${n <= signal.magnitude ? "bg-zinc-300" : "bg-zinc-700"}`}
             />
           ))}
         </div>
       </div>
 
       {/* Headline */}
-      <p className="text-sm font-medium text-gray-900 mb-1 group-hover:text-gray-700 leading-snug">
+      <p className="text-[14px] font-medium text-zinc-100 mb-1.5 leading-snug group-hover:text-white transition-colors duration-150">
         {signal.headline}
       </p>
 
       {/* Data point */}
-      <p className="text-xs text-gray-500 mb-3 leading-relaxed line-clamp-2">
+      <p className="text-[13px] text-zinc-500 mb-3 leading-relaxed line-clamp-2">
         {signal.dataPoint}
       </p>
 
       {/* Footer */}
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-400 font-mono">{signal.source}</span>
-        <span className="text-xs text-gray-400">{timeAgo(signal.scrapedAt)}</span>
+      <div className="flex items-center justify-between pt-2.5 border-t border-zinc-800">
+        <span className="text-[11px] text-zinc-400 font-mono">{signal.source}</span>
+        <span className="text-[11px] text-zinc-400">{timeAgo(signal.scrapedAt)}</span>
       </div>
     </a>
   );

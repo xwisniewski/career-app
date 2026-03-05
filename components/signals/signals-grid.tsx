@@ -2,9 +2,9 @@ import Link from "next/link";
 import type { SignalDetail } from "@/lib/data/signals";
 
 const SENTIMENT_CONFIG = {
-  POSITIVE: { dot: "bg-green-500", badge: "bg-green-50 text-green-700", label: "Opportunity" },
-  NEGATIVE: { dot: "bg-red-500", badge: "bg-red-50 text-red-700", label: "Risk" },
-  NEUTRAL: { dot: "bg-yellow-400", badge: "bg-yellow-50 text-yellow-700", label: "Watch" },
+  POSITIVE: { dot: "bg-emerald-500", badge: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20", label: "Opportunity" },
+  NEGATIVE: { dot: "bg-red-500", badge: "bg-red-500/10 text-red-400 border border-red-500/20", label: "Risk" },
+  NEUTRAL: { dot: "bg-amber-400", badge: "bg-amber-500/10 text-amber-400 border border-amber-500/20", label: "Watch" },
 };
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -26,21 +26,21 @@ function SignalGridCard({ signal }: { signal: SignalDetail }) {
   const cfg = SENTIMENT_CONFIG[signal.sentiment];
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-col gap-2 hover:border-gray-300 hover:shadow-sm transition-all">
+    <div className="bg-zinc-900 rounded-[10px] border border-zinc-800 p-4 flex flex-col gap-2 hover:border-zinc-700 hover:bg-zinc-800/80 transition-all duration-150">
       {/* Header */}
       <div className="flex items-center justify-between gap-2">
-        <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${cfg.badge}`}>
+        <span className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-full shrink-0 ${cfg.badge}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
           {cfg.label}
         </span>
-        <span className="text-xs text-gray-400 truncate">
+        <span className="text-[11px] text-zinc-400 truncate">
           {CATEGORY_LABEL[signal.category] ?? signal.category}
         </span>
         <div className="flex gap-0.5 shrink-0">
           {[1, 2, 3].map((n) => (
             <span
               key={n}
-              className={`w-1 h-3 rounded-sm ${n <= signal.magnitude ? "bg-gray-700" : "bg-gray-200"}`}
+              className={`w-1 h-3 rounded-sm ${n <= signal.magnitude ? "bg-zinc-300" : "bg-zinc-700"}`}
             />
           ))}
         </div>
@@ -48,13 +48,13 @@ function SignalGridCard({ signal }: { signal: SignalDetail }) {
 
       {/* Headline — links to detail page */}
       <Link href={`/signals/${signal.id}`} className="group">
-        <p className="text-sm font-medium text-gray-900 leading-snug group-hover:text-gray-600 transition-colors">
+        <p className="text-[14px] font-medium text-zinc-100 leading-snug group-hover:text-white transition-colors duration-150">
           {signal.headline}
         </p>
       </Link>
 
       {/* Data point */}
-      <p className="text-xs text-gray-500 leading-relaxed line-clamp-2 flex-1">
+      <p className="text-[13px] text-zinc-500 leading-relaxed line-clamp-2 flex-1">
         {signal.dataPoint}
       </p>
 
@@ -62,7 +62,7 @@ function SignalGridCard({ signal }: { signal: SignalDetail }) {
       {(signal.relevantIndustries.length > 0 || signal.relevantSkills.length > 0) && (
         <div className="flex flex-wrap gap-1">
           {[...signal.relevantIndustries, ...signal.relevantSkills].slice(0, 4).map((tag) => (
-            <span key={tag} className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+            <span key={tag} className="text-[11px] bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded">
               {tag}
             </span>
           ))}
@@ -70,15 +70,15 @@ function SignalGridCard({ signal }: { signal: SignalDetail }) {
       )}
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-1 border-t border-gray-100 mt-auto">
-        <span className="text-xs text-gray-400 font-mono">{signal.source}</span>
+      <div className="flex items-center justify-between pt-1 border-t border-zinc-800 mt-auto">
+        <span className="text-[11px] text-zinc-400 font-mono">{signal.source}</span>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400">{timeAgo(signal.scrapedAt)}</span>
+          <span className="text-[11px] text-zinc-400">{timeAgo(signal.scrapedAt)}</span>
           <a
             href={signal.sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-gray-400 hover:text-gray-700 transition-colors"
+            className="text-[11px] text-zinc-400 hover:text-zinc-200 transition-colors duration-150"
           >
             ↗
           </a>
@@ -102,11 +102,11 @@ export function SignalsGrid({
   if (signals.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
-        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-          <span className="text-2xl">📡</span>
+        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center mb-3">
+          <span className="w-2 h-2 rounded-full bg-zinc-600" />
         </div>
-        <p className="text-sm font-medium text-gray-700">No signals found</p>
-        <p className="text-xs text-gray-400 mt-1">
+        <p className="text-[14px] font-medium text-zinc-300">No signals found</p>
+        <p className="text-[13px] text-zinc-400 mt-1">
           Try different filters, or check back after the scraping jobs run.
         </p>
       </div>
@@ -115,7 +115,7 @@ export function SignalsGrid({
 
   return (
     <div>
-      <p className="text-xs text-gray-400 mb-4">
+      <p className="text-[13px] text-zinc-400 mb-4">
         {total.toLocaleString()} signal{total !== 1 ? "s" : ""}
         {totalPages > 1 && ` · page ${page} of ${totalPages}`}
       </p>
@@ -140,7 +140,7 @@ function Pagination({ page, totalPages }: { page: number; totalPages: number }) 
       <PaginationLink page={page - 1} disabled={page <= 1} label="←" />
       {pages.map((p, i) =>
         p === "..." ? (
-          <span key={`ellipsis-${i}`} className="px-2 py-1 text-sm text-gray-400">
+          <span key={`ellipsis-${i}`} className="px-2 py-1 text-[14px] text-zinc-400">
             …
           </span>
         ) : (
@@ -165,16 +165,16 @@ function PaginationLink({
 }) {
   if (disabled) {
     return (
-      <span className="px-3 py-1.5 rounded text-sm text-gray-300 cursor-not-allowed">{label}</span>
+      <span className="px-3 py-1.5 rounded text-[14px] text-zinc-300 cursor-not-allowed">{label}</span>
     );
   }
   return (
     <a
       href={`?page=${page}`}
-      className={`px-3 py-1.5 rounded text-sm transition-colors ${
+      className={`px-3 py-1.5 rounded text-[14px] transition-colors duration-150 ${
         current
-          ? "bg-gray-900 text-white font-medium"
-          : "text-gray-600 hover:bg-gray-100"
+          ? "bg-zinc-700 text-white font-medium"
+          : "text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
       }`}
     >
       {label}

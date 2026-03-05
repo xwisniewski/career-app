@@ -38,15 +38,13 @@ export default async function RecommendationsPage() {
   return (
     <div className="flex gap-8 items-start">
       {/* Sticky section nav */}
-      <aside className="hidden xl:flex flex-col gap-1 w-40 shrink-0 sticky top-20">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
-          Sections
-        </p>
+      <aside className="hidden xl:flex flex-col gap-0.5 w-36 shrink-0 sticky top-20">
+        <p className="label mb-3">Sections</p>
         {NAV_SECTIONS.map(({ id, label }) => (
           <a
             key={id}
             href={`#${id}`}
-            className="text-sm text-gray-500 hover:text-gray-900 py-1 transition-colors"
+            className="text-[13px] text-zinc-500 hover:text-white py-1 transition-all duration-150"
           >
             {label}
           </a>
@@ -54,16 +52,16 @@ export default async function RecommendationsPage() {
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 min-w-0 flex flex-col gap-12">
+      <div className="flex-1 min-w-0 flex flex-col gap-16">
         {/* Page header */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Your Report</h1>
-            <p className="text-sm text-gray-400 mt-1">
+            <h1 className="text-[32px] font-semibold text-white tracking-[-0.03em]">Your Report</h1>
+            <p className="text-[14px] text-zinc-400 mt-1.5">
               Generated {timeAgo(rec.generatedAt)}
               {profile.incomeGoal && (
                 <> · Income goal:{" "}
-                  <span className="font-medium text-gray-600">
+                  <span className="font-medium text-zinc-300">
                     ${profile.incomeGoal.toLocaleString()}
                   </span>
                 </>

@@ -2,16 +2,16 @@ import type { FullRecommendation } from "@/lib/data/recommendations";
 
 export function PositioningSection({ rec }: { rec: FullRecommendation }) {
   return (
-    <section id="positioning" className="flex flex-col gap-4">
-      <div>
-        <h2 className="text-lg font-semibold text-gray-900">Positioning Statement</h2>
-        <p className="text-sm text-gray-400 mt-0.5">
+    <section id="positioning" className="flex flex-col gap-6">
+      <div className="section-header">
+        <h2 className="text-[20px] font-semibold text-white tracking-[-0.02em]">Positioning Statement</h2>
+        <p className="text-[14px] text-zinc-500">
           How to describe yourself right now to maximize optionality.
         </p>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+      <div className="rounded-[10px] border border-zinc-800 p-6">
+        <p className="text-[15px] text-zinc-300 leading-relaxed whitespace-pre-line">
           {rec.keyNarrativeToTell}
         </p>
       </div>

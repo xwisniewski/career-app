@@ -33,13 +33,17 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Sign in</h1>
-      <p className="text-sm text-gray-500 mb-6">Career Intelligence</p>
+    <div className="flex flex-col gap-8">
+      <div>
+        <h1 className="text-[28px] font-semibold text-white tracking-[-0.02em] mb-1">
+          Sign in
+        </h1>
+        <p className="text-[15px] text-zinc-500">Career Intelligence</p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="email" className="text-[13px] font-medium text-zinc-400">
             Email
           </label>
           <input
@@ -47,13 +51,13 @@ export default function LoginPage() {
             name="email"
             type="email"
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+            className="input"
             placeholder="you@example.com"
           />
         </div>
 
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="password" className="text-[13px] font-medium text-zinc-400">
             Password
           </label>
           <input
@@ -61,27 +65,23 @@ export default function LoginPage() {
             name="password"
             type="password"
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+            className="input"
             placeholder="••••••••"
           />
         </div>
 
         {error && (
-          <p className="text-sm text-red-600">{error}</p>
+          <p className="text-[13px] text-red-600">{error}</p>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-gray-900 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
+        <button type="submit" disabled={loading} className="btn-primary w-full mt-1">
           {loading ? "Signing in…" : "Sign in"}
         </button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-gray-500">
+      <p className="text-[14px] text-zinc-500">
         No account?{" "}
-        <Link href="/register" className="text-gray-900 font-medium hover:underline">
+        <Link href="/register" className="text-white font-medium hover:underline transition-all duration-150">
           Create one
         </Link>
       </p>

@@ -33,8 +33,8 @@ export default async function SignalsPage({ searchParams }: { searchParams: Sear
       {/* Main content */}
       <div className="flex-1 min-w-0">
         <div className="mb-5">
-          <h1 className="text-lg font-semibold text-gray-900">Signal Explorer</h1>
-          <p className="text-sm text-gray-400 mt-0.5">All scraped macro signals, unfiltered</p>
+          <h1 className="text-lg font-semibold text-white">Signal Explorer</h1>
+          <p className="text-sm text-zinc-500 mt-0.5">All scraped macro signals, unfiltered</p>
         </div>
 
         {/* Trending strip — only on unfiltered view */}
