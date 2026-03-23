@@ -6,6 +6,7 @@ import { signOut } from "next-auth/react";
 
 const NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/threat-level", label: "Threat Level" },
   { href: "/recommendations", label: "Recommendations" },
   { href: "/signals", label: "Signals" },
   { href: "/profile", label: "Profile" },

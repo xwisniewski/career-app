@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { RecommendationRow, DashboardProfile } from "@/lib/data/dashboard";
+import type { ThreatLevelSnapshotRow } from "@/lib/data/threat-level";
+import { ThreatWidget } from "@/components/threat-level/threat-widget";
 
 const URGENCY_CONFIG = {
   now: { label: "Now", className: "bg-red-500/10 text-red-400 border border-red-500/20" },
@@ -10,9 +12,11 @@ const URGENCY_CONFIG = {
 export function QuickActions({
   recommendation,
   profile,
+  threatSnapshot,
 }: {
   recommendation: RecommendationRow | null;
   profile: DashboardProfile | null;
+  threatSnapshot: ThreatLevelSnapshotRow | null;
 }) {
   const topSkills = recommendation?.skillsToAccelerate.slice(0, 3) ?? [];
   const topRole = recommendation?.rolesToTarget[0] ?? null;
@@ -25,6 +29,9 @@ export function QuickActions({
         <h2 className="text-[15px] font-semibold text-white tracking-[-0.01em]">Focus</h2>
         <p className="text-[13px] text-zinc-400 mt-0.5">Where to focus this week</p>
       </div>
+
+      {/* Threat Level widget */}
+      <ThreatWidget snapshot={threatSnapshot} />
 
       {/* Income goal */}
       {profile?.incomeGoal && (

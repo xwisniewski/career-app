@@ -21,3 +21,5 @@ tsconfig.tsbuildinfo
 
 # vercel
 .vercel
+.env*.local
+session_transcript_original_build.txt

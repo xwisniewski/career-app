@@ -6,6 +6,7 @@
  */
 
 import type { MacroSignal, UserProfile, PrimarySkill } from "@/app/generated/prisma/client";
+import type { ThreatScoreResult } from "@/lib/threat-level/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -162,4 +163,82 @@ Rules:
 - Include exactly 3 biggestRisks and 3 biggestOpportunities
 - Every recommendation must cite specific signal data (companies, percentages, numbers)
 - Never use phrases like "consider", "might", "could potentially" — be direct and prescriptive`;
+}
+
+// ─── Threat Level Recommended Action Prompt (claude-haiku) ───────────────────
+
+export type ThreatActionOutput = {
+  action: string;
+  rationale: string;
+  scoreReduction: number; // estimated points drop if action is taken
+};
+
+type ThreatActionInput = {
+  profile: UserProfile & { primarySkills: PrimarySkill[] };
+  threatScore: ThreatScoreResult;
+};
+
+export function buildThreatActionPrompt(input: ThreatActionInput): string {
+  const { profile, threatScore } = input;
+
+  const incomeGap =
+    profile.incomeGoal && profile.currentCompensation
+      ? profile.incomeGoal - profile.currentCompensation
+      : null;
+
+  const incomeContext = incomeGap
+    ? `Current comp: $${profile.currentCompensation!.toLocaleString()} | Goal: $${profile.incomeGoal!.toLocaleString()} | Gap: $${incomeGap.toLocaleString()}`
+    : profile.incomeGoal
+    ? `Income goal: $${profile.incomeGoal.toLocaleString()} (no current comp set)`
+    : "No income goal set";
+
+  const topDrivers = threatScore.signalDrivers
+    .slice(0, 3)
+    .map((d) => `- ${d.headline}: ${d.explanation}`)
+    .join("\n");
+
+  const occupationLine = threatScore.matchedOccupation
+    ? `Occupation: ${threatScore.matchedOccupation} (${Math.round((threatScore.exposureScore ?? 0) * 100)}% AI observed exposure per Anthropic/EconomicIndex)`
+    : "Occupation exposure: unknown";
+
+  return `You are a career strategist generating ONE opinionated, specific recommended action for a professional based on their personal threat level data.
+
+━━━ THREAT LEVEL CONTEXT ━━━
+Composite score: ${threatScore.score}/100
+Role Risk: ${threatScore.roleRisk}/40 | Industry Risk: ${threatScore.industryRisk}/25 | Skills Gap: ${threatScore.skillsGap}/25 | Company Risk: ${threatScore.companyTypeRisk}/10
+${occupationLine}
+
+Top threat drivers:
+${topDrivers || "No signal data yet"}
+
+━━━ USER PROFILE ━━━
+Role: ${profile.currentRole ?? "not specified"}
+Industry: ${profile.currentIndustry ?? "not specified"}
+Experience: ${profile.yearsOfExperience ?? "?"} years
+${incomeContext}
+Primary skills: ${profile.primarySkills.map((s) => s.name).join(", ") || "none listed"}
+Learning skills: ${profile.learningSkills.join(", ") || "none"}
+
+━━━ YOUR TASK ━━━
+Generate ONE specific, actionable recommended action. It must:
+1. Name a concrete skill, role, company, or certification — no generalities
+2. Include the income gap math if available (e.g. "targeting X at Y Company pays $Z — closes $N of your $M gap")
+3. Estimate how many threat score points drop if this action is taken
+4. Be a single opinionated directive, not a list
+5. Be specific to the highest-weighted threat driver above
+
+${incomeGap ? `The income gap of $${incomeGap.toLocaleString()} MUST appear in the action line with specific numbers.` : ""}
+
+Return ONLY valid JSON (no markdown):
+{
+  "action": "One direct sentence: Do X at Y to achieve Z — closes $N of your gap, drops threat score N pts",
+  "rationale": "2-3 sentences explaining why this specific action addresses the highest-leverage threat driver",
+  "scoreReduction": 5
+}
+
+Rules:
+- Never hedge ("consider", "might", "could")
+- Name a real company, role, or certification
+- scoreReduction must be between 3 and 25 (realistic estimate)
+- The action sentence must be ≤ 25 words`;
 }

@@ -176,6 +176,61 @@ Build in this order to get end-to-end working fast:
 
 ---
 
+## BUAD 301 Midterm Document — Editing Rules
+
+**Critical:** The midterm Word document (`~/Downloads/BUAD301_Midterm_CareerApp.docx`) is actively edited by the user directly in Microsoft Word. Claude and the user work on this document simultaneously. These rules are mandatory — violating them will destroy the user's work.
+
+### The Golden Rule
+**NEVER regenerate the .docx by rerunning `/tmp/docx_project/midterm.js`.** The generator script was used to create the initial document. Now that the document exists and is being hand-edited, the script is retired as a build tool. Rerunning it overwrites all of the user's Word edits with no recovery path.
+
+### How to Make Changes to the Document
+Always use the **backup → unpack → edit XML → repack → backup** workflow:
+
+```bash
+DOCX=~/Downloads/BUAD301_Midterm_CareerApp.docx
+BACKUP_DIR=~/Downloads/trajectory_backups
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+
+# 0. Create backup directory if needed
+mkdir -p "$BACKUP_DIR"
+
+# 1. Save a BEFORE backup with timestamp
+cp "$DOCX" "$BACKUP_DIR/before_${TIMESTAMP}.docx"
+echo "Before backup saved: before_${TIMESTAMP}.docx"
+
+# 2. Unpack the live document (never regenerate from scratch)
+python3 scripts/office/unpack.py "$DOCX" /tmp/midterm_unpacked/
+
+# 3. Edit the XML directly in /tmp/midterm_unpacked/word/document.xml
+#    Use the Edit tool for targeted string replacements — do NOT write Python scripts
+
+# 4. Repack back to the same output path
+python3 scripts/office/pack.py /tmp/midterm_unpacked/ "$DOCX" --original "$DOCX"
+
+# 5. Save an AFTER backup with timestamp
+cp "$DOCX" "$BACKUP_DIR/after_${TIMESTAMP}.docx"
+echo "After backup saved: after_${TIMESTAMP}.docx"
+```
+
+Run the unpack/pack scripts from the docx skill directory:
+`/Users/xavierwisniewski/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin/0514976b-1f16-4649-b6b7-0c5512871c14/6af0521f-5835-4beb-a4ff-bb3f1181828e/skills/docx/`
+
+Backups are stored in `~/Downloads/trajectory_backups/` using the format:
+- `before_YYYYMMDD_HHMMSS.docx` — exact state of the doc before Claude touched it
+- `after_YYYYMMDD_HHMMSS.docx` — exact state after Claude finished the task
+
+Before and after pairs share the same timestamp so they are always easy to match up. To restore any backup, just copy it back to `~/Downloads/BUAD301_Midterm_CareerApp.docx`.
+
+### Before Starting Any Docx Task
+1. **Ask the user** if they have the file open in Word and want to save/close it first, or if they want Claude to work on the unpacked XML while they continue editing
+2. If the file is open in Word, warn that repacking will update the file on disk — Word will prompt about external changes
+3. Never assume the script version reflects the current state of the document — always unpack and read the XML to see what's actually there
+
+### What the Generator Script Is Good For
+`/tmp/docx_project/midterm.js` is now **reference only** — it documents the original structure and all verified citations/sources. Do not execute it. If a complete rebuild is ever needed, ask the user explicitly first.
+
+---
+
 ## Development Notes
 
 - **Build `/admin` early.** You'll need scrape status, signal counts, user list, and manual trigger buttons constantly during development.

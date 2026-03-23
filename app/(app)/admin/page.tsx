@@ -6,6 +6,7 @@ import { SignalBreakdown } from "@/components/admin/signal-breakdown";
 import { ScrapingRunsTable } from "@/components/admin/scraping-runs-table";
 import { UsersTable } from "@/components/admin/users-table";
 import { TriggerScrapeButton } from "@/components/admin/trigger-scrape-button";
+import { FetchExposureButton, ScoreAllUsersButton } from "@/components/admin/threat-level-buttons";
 import { UsagePanel } from "@/components/admin/usage-panel";
 
 export default async function AdminPage() {
@@ -23,7 +24,11 @@ export default async function AdminPage() {
           <h1 className="text-2xl font-bold text-gray-900">Admin</h1>
           <p className="text-sm text-gray-400 mt-1">System status, signal pipeline, and user management.</p>
         </div>
-        <TriggerScrapeButton />
+        <div className="flex gap-2">
+          <FetchExposureButton />
+          <ScoreAllUsersButton />
+          <TriggerScrapeButton />
+        </div>
       </div>
 
       {/* Top stats */}

@@ -88,6 +88,7 @@ model User {
   sessions        Session[]
   profile         UserProfile?
   recommendations CareerRecommendation[]
+  threatSnapshots ThreatLevelSnapshot[]
 }
 
 model Account {
@@ -255,6 +256,62 @@ model CareerRecommendation {
 
   @@index([userId, isLatest])
   @@index([generatedAt])
+}
+
+// ─── Threat Level ─────────────────────────────────────────────────────────────
+
+/// Cached occupation exposure scores from Anthropic/EconomicIndex (HuggingFace).
+/// ~800 O*NET occupations. Refresh quarterly when Anthropic publishes new data.
+model OccupationExposure {
+  id                  String   @id @default(cuid())
+  onetsocCode         String   @unique
+  title               String
+  /// Observed Exposure (0–1): usage-weighted real Claude coverage of job tasks.
+  /// This is the credible signal — theoretical capability gap is much larger.
+  observedExposure    Float
+  theoreticalExposure Float?
+  fetchedAt           DateTime
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([title])
+}
+
+/// One snapshot per user per day. Upserted by nightly cron — safe to re-run.
+model ThreatLevelSnapshot {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Normalized to midnight UTC — unique constraint enforces one row per user per day.
+  date DateTime
+
+  // Composite score 0–100
+  score         Int
+  previousScore Int? // yesterday's score, for delta display
+
+  // Sub-scores (raw points, not scaled to 100)
+  roleRisk        Int // 0–40 (Anthropic/EconomicIndex observed exposure)
+  industryRisk    Int // 0–25 (MacroSignals relevance)
+  skillsGap       Int // 0–25 (SKILL_DEMAND signal coverage)
+  companyTypeRisk Int // 0–10 (recent layoff/displacement signals)
+
+  // Occupation match context (for display)
+  matchedOccupation String? // O*NET title that was matched
+  exposureScore     Float?  // raw observedExposure (0–1)
+
+  // Signal ledger (SignalDriver[]) and counterfactors (Counterfactor[])
+  signalDrivers  Json
+  counterfactors Json
+
+  // Opinionated recommended action (income gap arithmetic folded in)
+  recommendedAction String @db.Text
+
+  computedAt DateTime @default(now())
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
 }
 
 // ─── Scraping Infrastructure ──────────────────────────────────────────────────

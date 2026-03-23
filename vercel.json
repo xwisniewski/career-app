@@ -3,6 +3,10 @@
     {
       "path": "/api/scrape/run",
       "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/threat-level/score",
+      "schedule": "0 3 * * *"
     }
   ]
 }
