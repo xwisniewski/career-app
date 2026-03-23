@@ -25,38 +25,50 @@ import type {
 
 // ─── HuggingFace Datasets Server API ─────────────────────────────────────────
 
-const HF_API_BASE =
-  "https://datasets-server.huggingface.co/rows?dataset=Anthropic%2FEconomicIndex&config=default&split=train";
-const BATCH_SIZE = 100;
-
-type HFApiResponse = {
-  features: { name: string }[];
-  rows: { row_idx: number; row: HFExposureRow }[];
-  num_rows_total: number;
-};
+/**
+ * Direct CSV download URL for the occupation exposure file.
+ * Source: Anthropic/EconomicIndex, labor_market_impacts/job_exposure.csv
+ * Columns: occ_code, title, observed_exposure
+ */
+const JOB_EXPOSURE_CSV_URL =
+  "https://huggingface.co/datasets/Anthropic/EconomicIndex/resolve/main/labor_market_impacts/job_exposure.csv";
 
 /** Fetch all occupation exposure rows from HuggingFace and upsert into DB. */
 export async function fetchAndSeedOccupationExposure(): Promise<{
   fetched: number;
   upserted: number;
 }> {
-  // Probe first page to get total count and detect column names
-  const firstPage = await fetchHFPage(0);
-  const total = firstPage.num_rows_total;
+  const res = await fetch(JOB_EXPOSURE_CSV_URL, {
+    headers: { "User-Agent": "CareerIntelligenceApp/1.0" },
+    redirect: "follow",
+  });
+  if (!res.ok) throw new Error(`Failed to download job_exposure.csv: HTTP ${res.status}`);
 
-  if (total === 0) throw new Error("HuggingFace dataset returned 0 rows");
+  const csv = await res.text();
+  const lines = csv.trim().split("\n");
+  if (lines.length < 2) throw new Error("job_exposure.csv appears empty");
 
-  // Detect column mapping from first row
-  const sampleRow = firstPage.rows[0]?.row ?? {};
-  const cols = detectColumns(sampleRow);
+  // Parse header to find column indices
+  const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
+  const codeIdx = headers.indexOf("occ_code");
+  const titleIdx = headers.indexOf("title");
+  const exposureIdx = headers.indexOf("observed_exposure");
 
-  const allRows: HFExposureRow[] = firstPage.rows.map((r) => r.row);
+  if (codeIdx === -1 || titleIdx === -1 || exposureIdx === -1) {
+    throw new Error(`Unexpected CSV columns: ${headers.join(", ")}`);
+  }
 
-  // Paginate remaining pages
-  const pageCount = Math.ceil(total / BATCH_SIZE);
-  for (let page = 1; page < pageCount; page++) {
-    const pageData = await fetchHFPage(page * BATCH_SIZE);
-    allRows.push(...pageData.rows.map((r) => r.row));
+  // Parse all data rows
+  type CsvRow = { code: string; title: string; observed: number };
+  const allRows: CsvRow[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const parts = lines[i].split(",");
+    const code = parts[codeIdx]?.trim();
+    const title = parts[titleIdx]?.trim();
+    const observed = parseFloat(parts[exposureIdx]?.trim() ?? "");
+    if (code && title && !isNaN(observed)) {
+      allRows.push({ code, title, observed });
+    }
   }
 
   const fetchedAt = new Date();
@@ -67,26 +79,17 @@ export async function fetchAndSeedOccupationExposure(): Promise<{
     const chunk = allRows.slice(i, i + 50);
     await Promise.all(
       chunk.map(async (row) => {
-        const code = String(row[cols.code] ?? "").trim();
-        const title = String(row[cols.title] ?? "").trim();
-        const observed = Number(row[cols.observed] ?? 0);
-        const theoretical = cols.theoretical ? Number(row[cols.theoretical] ?? 0) : undefined;
-
-        if (!code || !title || isNaN(observed)) return;
-
         await db.occupationExposure.upsert({
-          where: { onetsocCode: code },
+          where: { onetsocCode: row.code },
           create: {
-            onetsocCode: code,
-            title,
-            observedExposure: observed,
-            theoreticalExposure: theoretical ?? null,
+            onetsocCode: row.code,
+            title: row.title,
+            observedExposure: row.observed,
             fetchedAt,
           },
           update: {
-            title,
-            observedExposure: observed,
-            theoreticalExposure: theoretical ?? null,
+            title: row.title,
+            observedExposure: row.observed,
             fetchedAt,
           },
         });
@@ -96,39 +99,6 @@ export async function fetchAndSeedOccupationExposure(): Promise<{
   }
 
   return { fetched: allRows.length, upserted };
-}
-
-async function fetchHFPage(offset: number): Promise<HFApiResponse> {
-  const url = `${HF_API_BASE}&offset=${offset}&length=${BATCH_SIZE}`;
-  const res = await fetch(url, {
-    headers: { "User-Agent": "CareerIntelligenceApp/1.0" },
-    next: { revalidate: 0 },
-  });
-  if (!res.ok) {
-    throw new Error(`HuggingFace API error ${res.status}: ${await res.text()}`);
-  }
-  return res.json();
-}
-
-type ColumnMap = {
-  code: string;
-  title: string;
-  observed: string;
-  theoretical: string | null;
-};
-
-function detectColumns(sample: HFExposureRow): ColumnMap {
-  const keys = Object.keys(sample).map((k) => k.toLowerCase());
-
-  const find = (candidates: string[]) =>
-    Object.keys(sample).find((k) => candidates.includes(k.toLowerCase())) ?? "";
-
-  return {
-    code: find(["onet_soc_code", "onetsoccode", "onet_code", "soc_code", "code"]),
-    title: find(["title", "occupation_title", "occupation", "name"]),
-    observed: find(["observed_exposure", "observedexposure", "observed", "ai_exposure"]),
-    theoretical: find(["theoretical_exposure", "theoreticalexposure", "theoretical", "beta"]) || null,
-  };
 }
 
 // ─── Occupation title matcher ─────────────────────────────────────────────────

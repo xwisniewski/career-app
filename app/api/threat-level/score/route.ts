@@ -13,6 +13,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { computeThreatScore } from "@/lib/threat-level/score";
 import { generateThreatAction } from "@/lib/ai/threat-action";
@@ -23,9 +24,12 @@ export const maxDuration = 300; // 5 min for large user batches
 const BATCH_SIZE = 10;
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("x-cron-secret");
-  if (secret !== process.env.SCRAPER_CRON_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const xSecret = req.headers.get("x-cron-secret");
+  if (!xSecret || xSecret !== process.env.SCRAPER_CRON_SECRET) {
+    // Fall back to session-based admin auth (for admin panel button)
+    const session = await auth();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (session.user.role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   let targetDate: Date;

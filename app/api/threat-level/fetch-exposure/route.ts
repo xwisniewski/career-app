@@ -9,14 +9,17 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { fetchAndSeedOccupationExposure } from "@/lib/threat-level/sources/occupation-exposure";
 
 export const maxDuration = 120;
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("x-cron-secret");
-  if (secret !== process.env.SCRAPER_CRON_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const xSecret = req.headers.get("x-cron-secret");
+  if (!xSecret || xSecret !== process.env.SCRAPER_CRON_SECRET) {
+    const session = await auth();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (session.user.role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
