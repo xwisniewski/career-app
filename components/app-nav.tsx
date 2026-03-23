@@ -28,7 +28,7 @@ export function AppNav({ user }: Props) {
           href="/dashboard"
           className="text-[14px] font-semibold text-white tracking-tight leading-tight"
         >
-          Career<br />Intelligence
+          trajectory.io
         </Link>
       </div>
 

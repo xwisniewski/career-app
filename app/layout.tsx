@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Career Intelligence",
+  title: "trajectory.io",
   description: "Macro-grounded career guidance personalized to your profile",
 };
 

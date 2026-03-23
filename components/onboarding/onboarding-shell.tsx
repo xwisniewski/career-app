@@ -57,7 +57,7 @@ export function OnboardingShell({ profile }: { profile: OnboardingProfile }) {
       <div className="w-full max-w-xl bg-white rounded-xl shadow-sm border border-gray-200 p-8">
         <div className="mb-6">
           <h1 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
-            Career Intelligence
+            trajectory.io
           </h1>
         </div>
 
