@@ -6,7 +6,7 @@ export default function Home() {
       <div className="max-w-[560px] w-full text-center flex flex-col items-center gap-8">
         <div className="flex flex-col items-center gap-4">
           <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-widest">
-            trajectory.io
+            Trajectory.io
           </p>
           <h1 className="text-[40px] font-semibold text-white tracking-[-0.03em] leading-[1.15]">
             Macro-grounded guidance,<br />personalized to you.

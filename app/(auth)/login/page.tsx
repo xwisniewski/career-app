@@ -38,7 +38,7 @@ export default function LoginPage() {
         <h1 className="text-[28px] font-semibold text-white tracking-[-0.02em] mb-1">
           Sign in
         </h1>
-        <p className="text-[15px] text-zinc-500">trajectory.io</p>
+        <p className="text-[15px] text-zinc-500">Trajectory.io</p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
