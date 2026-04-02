@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[guardrail] Bash tool invoked — verify no destructive commands (rm -rf, drop table, force push)'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[guardrail] Write tool invoked — verify target path is within project directory'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
