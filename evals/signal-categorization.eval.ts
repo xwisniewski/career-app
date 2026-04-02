@@ -3,11 +3,11 @@
  * Tests that Claude Haiku correctly categorizes macro signals.
  */
 
-import type { MacroSignal } from '@/types';
+type SignalCategory = 'labor_market' | 'monetary_policy' | 'fiscal_policy' | 'industry_trend' | 'geopolitical' | 'technology' | 'other';
 
 interface EvalCase {
   input: string;
-  expectedCategory: MacroSignal['category'];
+  expectedCategory: SignalCategory;
   expectedSentiment: 'positive' | 'negative' | 'neutral';
 }
 

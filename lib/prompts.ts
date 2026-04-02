@@ -70,7 +70,7 @@ export function buildRecommendationPrompt(
   signals: MacroSignal[]
 ): string {
   const skillList = profile.primarySkills
-    .map((s) => `${s.name} (level ${s.proficiencyLevel}/5, ${s.yearsUsed ?? "?"} yrs)`)
+    .map((s: PrimarySkill) => `${s.name} (level ${s.proficiencyLevel}/5, ${s.yearsUsed ?? "?"} yrs)`)
     .join(", ");
 
   const incomeContext = [
@@ -216,7 +216,7 @@ Role: ${profile.currentRole ?? "not specified"}
 Industry: ${profile.currentIndustry ?? "not specified"}
 Experience: ${profile.yearsOfExperience ?? "?"} years
 ${incomeContext}
-Primary skills: ${profile.primarySkills.map((s) => s.name).join(", ") || "none listed"}
+Primary skills: ${profile.primarySkills.map((s: PrimarySkill) => s.name).join(", ") || "none listed"}
 Learning skills: ${profile.learningSkills.join(", ") || "none"}
 
 ━━━ YOUR TASK ━━━

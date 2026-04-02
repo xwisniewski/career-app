@@ -22,7 +22,7 @@ export default async function ProfilePage() {
     educationLevel: profile.educationLevel ?? "",
     educationField: profile.educationField ?? "",
     currentLocation: profile.currentLocation ?? "",
-    primarySkills: profile.primarySkills.map((s) => ({
+    primarySkills: profile.primarySkills.map((s: { name: string; proficiencyLevel: number; yearsUsed: number | null }) => ({
       name: s.name,
       proficiencyLevel: s.proficiencyLevel,
       yearsUsed: s.yearsUsed ?? null,

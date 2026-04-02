@@ -15,9 +15,9 @@ export class SkillsGapSource implements ThreatSignalSource {
     const { profile, signals } = ctx;
 
     const userSkills = new Set([
-      ...profile.primarySkills.map((s) => s.name.toLowerCase()),
-      ...profile.learningSkills.map((s) => s.toLowerCase()),
-      ...profile.desiredSkills.map((s) => s.toLowerCase()),
+      ...profile.primarySkills.map((s: { name: string }) => s.name.toLowerCase()),
+      ...profile.learningSkills.map((s: string) => s.toLowerCase()),
+      ...profile.desiredSkills.map((s: string) => s.toLowerCase()),
     ]);
 
     // Only SKILL_DEMAND signals matter here

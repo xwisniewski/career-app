@@ -48,7 +48,7 @@ export async function computeThreatScore(userId: string): Promise<ThreatScoreRes
   const userIndustries = [profile.currentIndustry, ...profile.targetIndustries].filter(Boolean);
   const userRoles = [profile.currentRole, ...profile.targetRoles].filter(Boolean);
   const userSkills = [
-    ...profile.primarySkills.map((s) => s.name),
+    ...profile.primarySkills.map((s: { name: string }) => s.name),
     ...profile.learningSkills,
   ].filter(Boolean);
 

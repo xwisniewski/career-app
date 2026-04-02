@@ -36,9 +36,9 @@ export class CompanyTypeRiskSource implements ThreatSignalSource {
     for (const sig of displacementSignals) {
       const isRelevant =
         userIndustries.length === 0 ||
-        sig.relevantIndustries.some((ind) => userIndustries.includes(ind.toLowerCase())) ||
+        sig.relevantIndustries.some((ind: string) => userIndustries.includes(ind.toLowerCase())) ||
         (profile.currentRole &&
-          sig.relevantRoles.some((r) => r.toLowerCase().includes(profile.currentRole!.toLowerCase())));
+          sig.relevantRoles.some((r: string) => r.toLowerCase().includes(profile.currentRole!.toLowerCase())));
 
       if (isRelevant) {
         const bump = sig.magnitude === 3 ? 2 : 1;
@@ -58,7 +58,7 @@ export class CompanyTypeRiskSource implements ThreatSignalSource {
       (s) => s.category === "JOB_MARKET" && s.sentiment === "POSITIVE"
     );
     for (const sig of positiveJobSignals) {
-      const isRelevant = sig.relevantIndustries.some((ind) =>
+      const isRelevant = sig.relevantIndustries.some((ind: string) =>
         userIndustries.includes(ind.toLowerCase())
       );
       if (isRelevant) {

@@ -2,8 +2,8 @@ type Run = {
   id: string;
   scraperName: string;
   status: string;
-  signalsFound: number;
-  signalsSaved: number;
+  signalsFound: number | null;
+  signalsSaved: number | null;
   errorMessage: string | null;
   startedAt: string;
   completedAt: string | null;

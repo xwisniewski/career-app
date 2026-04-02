@@ -79,16 +79,16 @@ export async function getAdminPageData() {
   ]);
 
   return {
-    signalCountByCategory: signalCountByCategory.map((r) => ({
+    signalCountByCategory: signalCountByCategory.map((r: { category: string; _count: { id: number } }) => ({
       category: r.category,
       count: r._count.id,
     })),
-    signalCountBySource: signalCountBySource.map((r) => ({
+    signalCountBySource: signalCountBySource.map((r: { source: string; _count: { id: number } }) => ({
       source: r.source,
       count: r._count.id,
     })),
     signalCountByDay,
-    recentScrapingRuns: recentScrapingRuns.map((r) => ({
+    recentScrapingRuns: recentScrapingRuns.map((r: { id: string; scraperName: string; status: string; signalsFound: number | null; signalsSaved: number | null; errorMessage: string | null; startedAt: Date; completedAt: Date | null }) => ({
       id: r.id,
       scraperName: r.scraperName,
       status: r.status,
@@ -98,7 +98,7 @@ export async function getAdminPageData() {
       startedAt: r.startedAt.toISOString(),
       completedAt: r.completedAt?.toISOString() ?? null,
     })),
-    users: users.map((u) => ({
+    users: users.map((u: { id: string; name: string | null; email: string | null; role: string; createdAt: Date; profile: { currentRole: string | null; currentIndustry: string | null; onboardingComplete: boolean } | null; recommendations: { generatedAt: Date }[] }) => ({
       id: u.id,
       name: u.name,
       email: u.email,

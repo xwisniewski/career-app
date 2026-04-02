@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     const batch = users.slice(i, i + BATCH_SIZE);
 
     await Promise.allSettled(
-      batch.map(async ({ id: userId }) => {
+      batch.map(async ({ id: userId }: { id: string }) => {
         try {
           const [threatScore, previousScore] = await Promise.all([
             computeThreatScore(userId),

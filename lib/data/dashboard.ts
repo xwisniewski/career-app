@@ -1,5 +1,6 @@
 import "server-only";
 import { db } from "@/lib/db";
+import type { MacroSignal } from "@/app/generated/prisma/client";
 
 export type SignalRow = {
   id: string;
@@ -65,7 +66,7 @@ export async function getDashboardData(userId: string): Promise<{
   const userRoles = [profile.currentRole, ...profile.targetRoles].filter(
     (x): x is string => !!x
   );
-  const userSkills = profile.primarySkills.map((s) => s.name);
+  const userSkills = profile.primarySkills.map((s: { name: string }) => s.name);
 
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
@@ -90,16 +91,16 @@ export async function getDashboardData(userId: string): Promise<{
   });
 
   const signals: SignalRow[] = rawSignals
-    .map((s) => {
+    .map((s: MacroSignal) => {
       let score = s.magnitude;
       for (const ind of s.relevantIndustries) {
-        if (userIndustries.some((u) => u.toLowerCase() === ind.toLowerCase())) score += 3;
+        if (userIndustries.some((u: string) => u.toLowerCase() === ind.toLowerCase())) score += 3;
       }
       for (const role of s.relevantRoles) {
-        if (userRoles.some((u) => u.toLowerCase() === role.toLowerCase())) score += 2;
+        if (userRoles.some((u: string) => u.toLowerCase() === role.toLowerCase())) score += 2;
       }
       for (const skill of s.relevantSkills) {
-        if (userSkills.some((u) => u.toLowerCase() === skill.toLowerCase())) score += 1;
+        if (userSkills.some((u: string) => u.toLowerCase() === skill.toLowerCase())) score += 1;
       }
       return {
         id: s.id,
@@ -118,7 +119,7 @@ export async function getDashboardData(userId: string): Promise<{
         relevanceScore: score,
       };
     })
-    .sort((a, b) => b.relevanceScore - a.relevanceScore);
+    .sort((a: SignalRow, b: SignalRow) => b.relevanceScore - a.relevanceScore);
 
   return {
     profile: {

@@ -26,7 +26,7 @@ export class IndustryRiskSource implements ThreatSignalSource {
 
     // Filter to signals relevant to user's industry
     const relevant = signals.filter((s) =>
-      s.relevantIndustries.some((ind) => userIndustries.includes(ind.toLowerCase()))
+      s.relevantIndustries.some((ind: string) => userIndustries.includes(ind.toLowerCase()))
     );
 
     // Risk categories are JOB_MARKET and DISPLACEMENT_RISK

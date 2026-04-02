@@ -65,16 +65,16 @@ export async function generateRecommendation(userId: string): Promise<string> {
     ...(profile.targetRoles ?? []),
   ];
   const userSkills = [
-    ...profile.primarySkills.map((s) => s.name),
+    ...profile.primarySkills.map((s: { name: string }) => s.name),
     ...(profile.learningSkills ?? []),
     ...(profile.desiredSkills ?? []),
   ];
 
   const scored = allSignals
-    .map((s) => ({ signal: s, score: scoreSignal(s, userIndustries, userRoles, userSkills) }))
-    .sort((a, b) => b.score - a.score)
+    .map((s: MacroSignal) => ({ signal: s, score: scoreSignal(s, userIndustries, userRoles, userSkills) }))
+    .sort((a: { signal: MacroSignal; score: number }, b: { signal: MacroSignal; score: number }) => b.score - a.score)
     .slice(0, 25)
-    .map((x) => x.signal);
+    .map((x: { signal: MacroSignal; score: number }) => x.signal);
 
   // 3. Call Claude Sonnet
   const prompt = buildRecommendationPrompt(profile, scored);
@@ -125,7 +125,7 @@ export async function generateRecommendation(userId: string): Promise<string> {
       biggestRisks: parsed.biggestRisks,
       biggestOpportunities: parsed.biggestOpportunities,
       signals: {
-        connect: scored.map((s) => ({ id: s.id })),
+        connect: scored.map((s: MacroSignal) => ({ id: s.id })),
       },
     },
   });

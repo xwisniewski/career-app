@@ -130,7 +130,7 @@ export async function getSignalsPage(params: {
     total,
     totalPages: Math.ceil(total / PAGE_SIZE),
     page,
-    sources: sources.map((s) => s.source),
+    sources: sources.map((s: { source: string }) => s.source),
     trending: trending.map(toDetail),
   };
 }

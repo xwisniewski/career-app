@@ -1,5 +1,8 @@
 import "server-only";
 import { db } from "@/lib/db";
+import type { UserProfile, PrimarySkill } from "@/app/generated/prisma/client";
+
+type ProfileWithSkills = UserProfile & { primarySkills: PrimarySkill[] };
 
 export async function getTeamPageData() {
   const profiles = await db.userProfile.findMany({
@@ -25,8 +28,8 @@ export async function getTeamPageData() {
   const topSkills = [...skillMap.entries()]
     .map(([name, { total, count }]) => ({
       name: profiles
-        .flatMap((p) => p.primarySkills)
-        .find((s) => s.name.toLowerCase() === name)?.name ?? name,
+        .flatMap((p: ProfileWithSkills) => p.primarySkills)
+        .find((s: PrimarySkill) => s.name.toLowerCase() === name)?.name ?? name,
       avgLevel: Math.round((total / count) * 10) / 10,
       memberCount: count,
     }))
@@ -70,7 +73,7 @@ export async function getTeamPageData() {
   ].map((b) => ({
     label: b.label,
     count: profiles.filter(
-      (p) =>
+      (p: ProfileWithSkills) =>
         p.yearsOfExperience != null &&
         p.yearsOfExperience >= b.min &&
         p.yearsOfExperience <= b.max
@@ -87,7 +90,7 @@ export async function getTeamPageData() {
     { label: "$300K+", max: Infinity },
   ].map((b, i, arr) => ({
     label: b.label,
-    count: profiles.filter((p) => {
+    count: profiles.filter((p: ProfileWithSkills) => {
       if (!p.incomeGoal) return false;
       const min = i === 0 ? 0 : arr[i - 1].max + 1;
       return p.incomeGoal >= min && p.incomeGoal <= b.max;
@@ -101,10 +104,10 @@ export async function getTeamPageData() {
   };
 
   const preferences = {
-    avgRiskTolerance: avg(profiles.map((p) => p.riskTolerance)),
-    avgAutonomyVsStatus: avg(profiles.map((p) => p.autonomyVsStatus)),
-    avgAmbiguityTolerance: avg(profiles.map((p) => p.ambiguityTolerance)),
-    avgHoursPerWeek: avg(profiles.map((p) => p.hoursPerWeekForLearning)),
+    avgRiskTolerance: avg(profiles.map((p: ProfileWithSkills) => p.riskTolerance)),
+    avgAutonomyVsStatus: avg(profiles.map((p: ProfileWithSkills) => p.autonomyVsStatus)),
+    avgAmbiguityTolerance: avg(profiles.map((p: ProfileWithSkills) => p.ambiguityTolerance)),
+    avgHoursPerWeek: avg(profiles.map((p: ProfileWithSkills) => p.hoursPerWeekForLearning)),
   };
 
   // ── Work environment breakdown ────────────────────────────────────────────
