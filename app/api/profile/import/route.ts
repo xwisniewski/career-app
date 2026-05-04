@@ -19,9 +19,9 @@ async function extractTextFromFile(file: File): Promise<string> {
   const type = file.type.toLowerCase();
 
   if (type.includes("pdf") || name.endsWith(".pdf")) {
-    const { extractText } = await import("unpdf");
-    const { text } = await extractText(new Uint8Array(buffer), { mergePages: true });
-    return Array.isArray(text) ? text.join("\n\n") : (text as string);
+    const { default: pdfParse } = await import("pdf-parse");
+    const data = await pdfParse(buffer);
+    return data.text;
   }
 
   if (
