@@ -36,11 +36,16 @@ export function SignalFeed({ signals }: { signals: SignalRow[] }) {
   }, [signals, category, sentiment]);
 
   return (
-    <div className="flex min-h-0 flex-col gap-5">
-      {/* Column header */}
-      <div>
-        <h2 className="text-[15px] font-semibold text-white tracking-[-0.01em]">Signal Feed</h2>
-        <p className="text-[13px] text-zinc-400 mt-0.5">Macro signals matched to your profile</p>
+    <div className="flex min-h-0 flex-col gap-4">
+      {/* Column header — terminal-style */}
+      <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+        <div className="flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          <span className="eyebrow">Signal feed · live</span>
+        </div>
+        <span className="font-mono text-[10px] tracking-wider text-zinc-500">
+          {filtered.length}/{signals.length} matched
+        </span>
       </div>
 
       {/* Filters */}
@@ -77,25 +82,20 @@ export function SignalFeed({ signals }: { signals: SignalRow[] }) {
         </div>
       </div>
 
-      {/* Signal list */}
-      <div className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto pr-1">
+      {/* Signal list — dense terminal rows */}
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto border border-zinc-800/80 rounded-[10px]">
         {filtered.length === 0 ? (
           <div className="flex min-h-[280px] flex-1 flex-col items-center justify-center py-16 text-center">
             <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center mb-3">
               <span className="w-2 h-2 rounded-full bg-zinc-600 block" />
             </div>
-            <p className="text-[14px] font-medium text-zinc-300">No signals yet</p>
+            <p className="text-[14px] font-medium text-zinc-300">No signals match</p>
             <p className="text-[13px] text-zinc-400 mt-1 max-w-xs leading-relaxed">
-              Signals populate once the scraping jobs run. Trigger one manually from /admin.
+              Try clearing filters, or trigger a scrape from /admin.
             </p>
           </div>
         ) : (
-          <>
-            <p className="text-[12px] text-zinc-400">{filtered.length} signal{filtered.length !== 1 ? "s" : ""}</p>
-            {filtered.map((signal) => (
-              <SignalCard key={signal.id} signal={signal} />
-            ))}
-          </>
+          filtered.map((signal) => <SignalCard key={signal.id} signal={signal} />)
         )}
       </div>
     </div>

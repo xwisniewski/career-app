@@ -11,23 +11,40 @@ function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
   const minutes = Math.floor(diff / 60_000);
   if (minutes < 1) return "now";
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 60) return `${minutes}m`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.floor(hours / 24)}d ago`;
+  if (hours < 24) return `${hours}h`;
+  return `${Math.floor(hours / 24)}d`;
 }
 
 export function SignalAlerts({ notifications }: { notifications: SignalNotificationRow[] }) {
   if (notifications.length === 0) return null;
 
   return (
-    <div className="rounded-[10px] border border-blue-500/20 bg-blue-500/5 p-4">
+    <div
+      className="rounded-[10px] border p-4"
+      style={{
+        borderColor: "rgb(var(--accent-line))",
+        backgroundColor: "rgb(var(--accent-soft))",
+      }}
+    >
       <div className="mb-3 flex items-center justify-between gap-3">
-        <div>
-          <p className="label text-blue-300">Signal Alerts</p>
-          <p className="mt-0.5 text-[12px] text-zinc-500">New macro signals matched to your profile</p>
+        <div className="flex items-center gap-2">
+          <span
+            className="h-1.5 w-1.5 animate-pulse rounded-full"
+            style={{ backgroundColor: "rgb(var(--accent))" }}
+          />
+          <p
+            className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em]"
+            style={{ color: "rgb(var(--accent))" }}
+          >
+            Signal alerts · new
+          </p>
         </div>
-        <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-[11px] font-medium text-blue-300">
+        <span
+          className="font-mono text-[10px] num tracking-wider"
+          style={{ color: "rgb(var(--accent))" }}
+        >
           {notifications.length}
         </span>
       </div>
@@ -43,13 +60,15 @@ export function SignalAlerts({ notifications }: { notifications: SignalNotificat
           >
             <div className="mb-1.5 flex items-center justify-between gap-2">
               <span
-                className={`rounded-full border px-1.5 py-0.5 text-[10px] font-semibold ${SEVERITY_STYLES[notification.severity]}`}
+                className={`rounded-full border px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider ${SEVERITY_STYLES[notification.severity]}`}
               >
-                {notification.severity.toLowerCase()}
+                {notification.severity}
               </span>
-              <span className="text-[10px] text-zinc-600">{timeAgo(notification.createdAt)}</span>
+              <span className="font-mono text-[10px] tracking-wider text-zinc-600">
+                {timeAgo(notification.createdAt)}
+              </span>
             </div>
-            <p className="line-clamp-2 text-[12px] font-medium leading-snug text-zinc-200">
+            <p className="line-clamp-2 text-[12.5px] font-medium leading-snug text-zinc-200">
               {notification.title}
             </p>
             <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-zinc-500">

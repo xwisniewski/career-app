@@ -1,73 +1,79 @@
 import type { SignalRow } from "@/lib/data/dashboard";
 
 const SENTIMENT_CONFIG = {
-  POSITIVE: { dot: "bg-emerald-500", badge: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20", label: "Opportunity" },
-  NEGATIVE: { dot: "bg-red-500", badge: "bg-red-500/10 text-red-400 border border-red-500/20", label: "Risk" },
-  NEUTRAL: { dot: "bg-amber-400", badge: "bg-amber-500/10 text-amber-400 border border-amber-500/20", label: "Watch" },
+  POSITIVE: { color: "text-emerald-400", bar: "bg-emerald-400", label: "OPP" },
+  NEGATIVE: { color: "text-red-400", bar: "bg-red-400", label: "RISK" },
+  NEUTRAL:  { color: "text-amber-400", bar: "bg-amber-400", label: "WATCH" },
 };
 
 const CATEGORY_LABEL: Record<string, string> = {
-  JOB_MARKET: "Job Market",
-  CAPITAL_FLOWS: "Capital",
-  SKILL_DEMAND: "Skills",
-  DISPLACEMENT_RISK: "Displacement",
-  POLICY: "Policy",
+  JOB_MARKET: "JOBS",
+  CAPITAL_FLOWS: "CAPITAL",
+  SKILL_DEMAND: "SKILLS",
+  DISPLACEMENT_RISK: "RISK·AI",
+  POLICY: "POLICY",
 };
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
-  const hours = Math.floor(diff / 3_600_000);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  const minutes = Math.floor(diff / 60_000);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  return `${Math.floor(hours / 24)}d`;
 }
 
+/**
+ * Dense terminal-style signal row.
+ * Replaces the previous card layout — same data, ~50% less vertical space.
+ */
 export function SignalCard({ signal }: { signal: SignalRow }) {
   const cfg = SENTIMENT_CONFIG[signal.sentiment];
+  const cat = CATEGORY_LABEL[signal.category] ?? signal.category;
 
   return (
     <a
       href={signal.sourceUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="block p-4 rounded-[10px] border border-zinc-800 bg-zinc-900 hover:border-zinc-700 hover:bg-zinc-800/80 transition-all duration-150 group"
+      className="group block border-b border-zinc-800/80 px-3 py-2.5 transition-colors duration-150 hover:bg-zinc-900/60"
     >
-      {/* Header row */}
-      <div className="flex items-center justify-between gap-2 mb-2.5">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-full ${cfg.badge}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-            {cfg.label}
-          </span>
-          <span className="text-[11px] text-zinc-400 truncate">
-            {CATEGORY_LABEL[signal.category] ?? signal.category}
-          </span>
+      <div className="grid grid-cols-[44px_56px_1fr_auto] items-center gap-2.5">
+        {/* Tone tag */}
+        <span className={`font-mono text-[10px] font-semibold tracking-[0.14em] ${cfg.color}`}>
+          {cfg.label}
+        </span>
+
+        {/* Category code */}
+        <span className="font-mono text-[10px] tracking-[0.12em] text-zinc-500">
+          {cat}
+        </span>
+
+        {/* Headline + source */}
+        <div className="min-w-0">
+          <p className="truncate text-[13.5px] leading-snug text-zinc-100 group-hover:text-white">
+            {signal.headline}
+          </p>
+          <p className="mt-0.5 truncate font-mono text-[10px] tracking-wider text-zinc-500">
+            {signal.source} · {timeAgo(signal.scrapedAt)}
+          </p>
         </div>
-        <div className="flex items-center gap-1 shrink-0">
+
+        {/* Magnitude bars */}
+        <div className="flex items-center gap-[2px] shrink-0">
           {[1, 2, 3].map((n) => (
             <span
               key={n}
-              className={`w-[3px] h-3 rounded-full ${n <= signal.magnitude ? "bg-zinc-300" : "bg-zinc-700"}`}
+              className={`h-3 w-[3px] ${n <= signal.magnitude ? cfg.bar : "bg-zinc-800"}`}
             />
           ))}
         </div>
       </div>
 
-      {/* Headline */}
-      <p className="text-[14px] font-medium text-zinc-100 mb-1.5 leading-snug group-hover:text-white transition-colors duration-150">
-        {signal.headline}
-      </p>
-
-      {/* Data point */}
-      <p className="text-[13px] text-zinc-500 mb-3 leading-relaxed line-clamp-2">
+      {/* Data point — only on hover for density, but always for accessibility/legibility */}
+      <p className="mt-1.5 ml-[112px] line-clamp-1 text-[12px] leading-snug text-zinc-500">
         {signal.dataPoint}
       </p>
-
-      {/* Footer */}
-      <div className="flex items-center justify-between pt-2.5 border-t border-zinc-800">
-        <span className="text-[11px] text-zinc-400 font-mono">{signal.source}</span>
-        <span className="text-[11px] text-zinc-400">{timeAgo(signal.scrapedAt)}</span>
-      </div>
     </a>
   );
 }

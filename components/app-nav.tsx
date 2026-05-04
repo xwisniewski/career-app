@@ -26,8 +26,12 @@ export function AppNav({ user }: Props) {
       <div className="px-5 py-5 border-b border-zinc-800/60">
         <Link
           href="/dashboard"
-          className="text-[14px] font-semibold text-white tracking-tight leading-tight"
+          className="flex items-center gap-2 text-[14px] font-semibold text-white tracking-tight leading-tight"
         >
+          <span
+            className="h-2 w-2"
+            style={{ backgroundColor: "rgb(var(--accent))" }}
+          />
           Trajectory.io
         </Link>
       </div>
@@ -66,12 +70,15 @@ export function AppNav({ user }: Props) {
 
       {/* User */}
       <div className="p-4 border-t border-zinc-800/60">
-        <p className="text-[12px] text-zinc-500 truncate mb-2">
+        <p className="font-mono text-[10px] tracking-wider text-zinc-500 mb-1 uppercase">
+          Operator
+        </p>
+        <p className="text-[12px] text-zinc-300 truncate mb-2">
           {user.name ?? user.email}
         </p>
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className="text-[12px] text-zinc-600 hover:text-white transition-colors duration-150"
+          className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-500 hover:text-white transition-colors duration-150"
         >
           Sign out
         </button>

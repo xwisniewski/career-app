@@ -33,37 +33,53 @@ export function IntelligenceBrief({
 
   return (
     <div className="flex min-h-0 flex-col gap-4">
-      {/* Column header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h2 className="text-[15px] font-semibold text-white tracking-[-0.01em]">Intelligence Brief</h2>
-          <p className="text-[13px] text-zinc-400 mt-0.5">Your market, synthesized</p>
+      {/* Column header — terminal eyebrow */}
+      <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+        <div className="flex items-center gap-2">
+          <span
+            className="h-1.5 w-1.5 rounded-sm"
+            style={{ backgroundColor: "rgb(var(--accent))" }}
+          />
+          <span className="eyebrow">Intelligence brief</span>
+          {recommendation && (
+            <span className="font-mono text-[10px] tracking-wider text-zinc-500">
+              · synth {timeAgo(recommendation.generatedAt)}
+            </span>
+          )}
         </div>
         {recommendation && (
           <button
             onClick={handleRefresh}
             disabled={isPending}
-            className="text-[12px] text-zinc-500 hover:text-zinc-200 transition-all duration-150 disabled:opacity-40"
+            className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-400 hover:text-white transition-colors duration-150 disabled:opacity-40"
           >
-            {isPending ? "Refreshing…" : refreshed ? "Queued" : "Refresh"}
+            {isPending ? "Regen…" : refreshed ? "Queued" : "Regen ⟳"}
           </button>
         )}
       </div>
 
       {recommendation ? (
-        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pr-1">
           {/* What changed banner */}
           {briefDiff && <BriefDiffBanner diff={briefDiff} />}
 
-          {/* Narrative */}
-          <div className="rounded-[10px] border border-zinc-800 p-5">
-            <p className="label mb-2.5">Current Positioning</p>
-            <p className="text-[14px] text-zinc-300 leading-relaxed">{recommendation.keyNarrativeToTell}</p>
+          {/* Narrative — hero analyst note, accent rule */}
+          <div
+            className="border-l-2 pl-5 py-1"
+            style={{ borderColor: "rgb(var(--accent))" }}
+          >
+            <p className="eyebrow mb-2">Positioning · key narrative</p>
+            <p
+              className="text-[16px] leading-[1.55] text-zinc-100"
+              style={{ textWrap: "pretty" }}
+            >
+              {recommendation.keyNarrativeToTell}
+            </p>
           </div>
 
           {/* Income trajectory */}
           <div className="rounded-[10px] border border-zinc-800 p-5">
-            <p className="label mb-2.5">Income Trajectory</p>
+            <p className="eyebrow mb-2.5">Income trajectory</p>
             <p className="text-[14px] text-zinc-300 leading-relaxed">
               {recommendation.incomeTrajectoryAssessment}
             </p>
@@ -71,41 +87,41 @@ export function IntelligenceBrief({
 
           {/* Opportunities */}
           {recommendation.biggestOpportunities.length > 0 && (
-            <div className="rounded-[10px] border border-emerald-500/20 bg-emerald-500/10 p-5">
-              <p className="text-[11px] font-medium text-emerald-400 uppercase tracking-wider mb-2.5">
-                Biggest Opportunities
+            <div className="border-l-2 border-emerald-500/40 pl-5 py-1">
+              <p className="font-mono text-[10px] font-semibold tracking-[0.14em] uppercase text-emerald-400 mb-2.5">
+                Opportunities · ranked
               </p>
-              <ul className="space-y-2">
+              <ol className="space-y-2.5">
                 {recommendation.biggestOpportunities.map((o, i) => (
-                  <li key={i} className="text-[13px] text-emerald-300 flex gap-2 leading-snug">
-                    <span className="shrink-0 mt-0.5 text-emerald-400">→</span>
-                    <span>{o}</span>
+                  <li key={i} className="flex gap-3 text-[13.5px] leading-snug text-zinc-200">
+                    <span className="shrink-0 font-mono text-[11px] num text-emerald-400 pt-0.5 tracking-wider">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span style={{ textWrap: "pretty" }}>{o}</span>
                   </li>
                 ))}
-              </ul>
+              </ol>
             </div>
           )}
 
           {/* Risks */}
           {recommendation.biggestRisks.length > 0 && (
-            <div className="rounded-[10px] border border-red-500/20 bg-red-500/10 p-5">
-              <p className="text-[11px] font-medium text-red-400 uppercase tracking-wider mb-2.5">
-                Biggest Risks
+            <div className="border-l-2 border-red-500/40 pl-5 py-1">
+              <p className="font-mono text-[10px] font-semibold tracking-[0.14em] uppercase text-red-400 mb-2.5">
+                Risks · watch
               </p>
-              <ul className="space-y-2">
+              <ol className="space-y-2.5">
                 {recommendation.biggestRisks.map((r, i) => (
-                  <li key={i} className="text-[13px] text-red-300 flex gap-2 leading-snug">
-                    <span className="shrink-0 mt-0.5 text-red-400">—</span>
-                    <span>{r}</span>
+                  <li key={i} className="flex gap-3 text-[13.5px] leading-snug text-zinc-200">
+                    <span className="shrink-0 font-mono text-[11px] num text-red-400 pt-0.5 tracking-wider">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span style={{ textWrap: "pretty" }}>{r}</span>
                   </li>
                 ))}
-              </ul>
+              </ol>
             </div>
           )}
-
-          <p className="text-[11px] text-zinc-400 text-right">
-            Generated {timeAgo(recommendation.generatedAt)}
-          </p>
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-16 text-center rounded-[10px] border border-zinc-800">
@@ -127,7 +143,11 @@ export function IntelligenceBrief({
       )}
 
       {/* Ask the Brief chat — only shown when a recommendation exists */}
-      {recommendation && <div className="shrink-0"><BriefChat /></div>}
+      {recommendation && (
+        <div className="shrink-0">
+          <BriefChat />
+        </div>
+      )}
     </div>
   );
 }
