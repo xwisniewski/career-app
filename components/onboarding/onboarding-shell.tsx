@@ -7,6 +7,7 @@ import { StepSkills } from "./steps/step-skills";
 import { StepGoals } from "./steps/step-goals";
 import { StepPreferences } from "./steps/step-preferences";
 import { StepLearning } from "./steps/step-learning";
+import { ImportCard, type ProfileImportDraft } from "./import-card";
 
 type NetworkEntry = { industry: string; strength: number };
 
@@ -45,12 +46,37 @@ export type OnboardingProfile = {
 };
 
 export function OnboardingShell({ profile }: { profile: OnboardingProfile }) {
+  const [draftProfile, setDraftProfile] = useState(profile);
+  const [importVersion, setImportVersion] = useState(0);
   const [currentStep, setCurrentStep] = useState(
     Math.max(1, Math.min(profile.onboardingStep + 1, 5))
   );
 
   const next = () => setCurrentStep((s) => Math.min(s + 1, 5));
   const back = () => setCurrentStep((s) => Math.max(s - 1, 1));
+
+  function applyImportDraft(draft: ProfileImportDraft) {
+    setDraftProfile((prev) => ({
+      ...prev,
+      currentRole: draft.currentRole ?? prev.currentRole,
+      currentIndustry: draft.currentIndustry ?? prev.currentIndustry,
+      yearsOfExperience: draft.yearsOfExperience ?? prev.yearsOfExperience,
+      educationLevel: draft.educationLevel ?? prev.educationLevel,
+      educationField: draft.educationField ?? prev.educationField,
+      currentLocation: draft.currentLocation ?? prev.currentLocation,
+      primarySkills: draft.primarySkills.length > 0 ? draft.primarySkills : prev.primarySkills,
+      learningSkills: draft.learningSkills.length > 0 ? draft.learningSkills : prev.learningSkills,
+      desiredSkills: draft.desiredSkills.length > 0 ? draft.desiredSkills : prev.desiredSkills,
+      targetRoles: draft.targetRoles.length > 0 ? draft.targetRoles : prev.targetRoles,
+      targetIndustries: draft.targetIndustries.length > 0 ? draft.targetIndustries : prev.targetIndustries,
+      networkStrengthByIndustry:
+        draft.networkStrengthByIndustry.length > 0
+          ? draft.networkStrengthByIndustry
+          : prev.networkStrengthByIndustry,
+    }));
+    setImportVersion((version) => version + 1);
+    setCurrentStep(1);
+  }
 
   return (
     <div className="onboarding-terminal flex min-h-screen items-center justify-center bg-[#080706] p-4 text-zinc-200">
@@ -95,16 +121,21 @@ export function OnboardingShell({ profile }: { profile: OnboardingProfile }) {
 
             <ProgressBar currentStep={currentStep} />
 
-            <div className="border border-zinc-900 bg-[#080706] p-5 sm:p-6">
+            <ImportCard onImported={applyImportDraft} />
+
+            <div
+              key={`${importVersion}-${currentStep}`}
+              className="border border-zinc-900 bg-[#080706] p-5 sm:p-6"
+            >
               {currentStep === 1 && (
                 <StepSituation
                   initial={{
-                    currentRole: profile.currentRole ?? "",
-                    currentIndustry: profile.currentIndustry ?? "",
-                    yearsOfExperience: profile.yearsOfExperience ?? 0,
-                    educationLevel: profile.educationLevel ?? "",
-                    educationField: profile.educationField ?? "",
-                    currentLocation: profile.currentLocation ?? "",
+                    currentRole: draftProfile.currentRole ?? "",
+                    currentIndustry: draftProfile.currentIndustry ?? "",
+                    yearsOfExperience: draftProfile.yearsOfExperience ?? 0,
+                    educationLevel: draftProfile.educationLevel ?? "",
+                    educationField: draftProfile.educationField ?? "",
+                    currentLocation: draftProfile.currentLocation ?? "",
                   }}
                   onNext={next}
                 />
@@ -112,9 +143,9 @@ export function OnboardingShell({ profile }: { profile: OnboardingProfile }) {
               {currentStep === 2 && (
                 <StepSkills
                   initial={{
-                    primarySkills: profile.primarySkills,
-                    learningSkills: profile.learningSkills,
-                    desiredSkills: profile.desiredSkills,
+                    primarySkills: draftProfile.primarySkills,
+                    learningSkills: draftProfile.learningSkills,
+                    desiredSkills: draftProfile.desiredSkills,
                   }}
                   onNext={next}
                   onBack={back}
@@ -123,11 +154,11 @@ export function OnboardingShell({ profile }: { profile: OnboardingProfile }) {
               {currentStep === 3 && (
                 <StepGoals
                   initial={{
-                    targetRoles: profile.targetRoles,
-                    targetIndustries: profile.targetIndustries,
-                    targetTimeHorizon: profile.targetTimeHorizon ?? "3yr",
-                    incomeGoal: profile.incomeGoal ?? 0,
-                    currentCompensation: profile.currentCompensation ?? 0,
+                    targetRoles: draftProfile.targetRoles,
+                    targetIndustries: draftProfile.targetIndustries,
+                    targetTimeHorizon: draftProfile.targetTimeHorizon ?? "3yr",
+                    incomeGoal: draftProfile.incomeGoal ?? 0,
+                    currentCompensation: draftProfile.currentCompensation ?? 0,
                   }}
                   onNext={next}
                   onBack={back}
@@ -136,15 +167,15 @@ export function OnboardingShell({ profile }: { profile: OnboardingProfile }) {
               {currentStep === 4 && (
                 <StepPreferences
                   initial={{
-                    riskTolerance: profile.riskTolerance ?? 3,
-                    autonomyVsStatus: profile.autonomyVsStatus ?? 3,
-                    ambiguityTolerance: profile.ambiguityTolerance ?? 3,
-                    geographicFlexibility: profile.geographicFlexibility ?? "NATIONAL",
-                    workEnvironmentPreference: profile.workEnvironmentPreference ?? "NO_PREFERENCE",
-                    familyConstraints: profile.familyConstraints ?? false,
-                    visaStatus: profile.visaStatus ?? "CITIZEN",
-                    entrepreneurialInterest: profile.entrepreneurialInterest ?? false,
-                    networkStrengthByIndustry: profile.networkStrengthByIndustry ?? [],
+                    riskTolerance: draftProfile.riskTolerance ?? 3,
+                    autonomyVsStatus: draftProfile.autonomyVsStatus ?? 3,
+                    ambiguityTolerance: draftProfile.ambiguityTolerance ?? 3,
+                    geographicFlexibility: draftProfile.geographicFlexibility ?? "NATIONAL",
+                    workEnvironmentPreference: draftProfile.workEnvironmentPreference ?? "NO_PREFERENCE",
+                    familyConstraints: draftProfile.familyConstraints ?? false,
+                    visaStatus: draftProfile.visaStatus ?? "CITIZEN",
+                    entrepreneurialInterest: draftProfile.entrepreneurialInterest ?? false,
+                    networkStrengthByIndustry: draftProfile.networkStrengthByIndustry ?? [],
                   }}
                   onNext={next}
                   onBack={back}
@@ -153,8 +184,8 @@ export function OnboardingShell({ profile }: { profile: OnboardingProfile }) {
               {currentStep === 5 && (
                 <StepLearning
                   initial={{
-                    hoursPerWeekForLearning: profile.hoursPerWeekForLearning ?? 5,
-                    preferredLearningStyle: profile.preferredLearningStyle ?? "MIXED",
+                    hoursPerWeekForLearning: draftProfile.hoursPerWeekForLearning ?? 5,
+                    preferredLearningStyle: draftProfile.preferredLearningStyle ?? "MIXED",
                   }}
                   onBack={back}
                 />

@@ -36,6 +36,27 @@ export type SignalCategorizationOutput = {
   relevantSkills: string[];
 };
 
+export type ProfileImportOutput = {
+  currentRole: string | null;
+  currentIndustry: string | null;
+  yearsOfExperience: number | null;
+  educationLevel: string | null;
+  educationField: string | null;
+  currentLocation: string | null;
+  primarySkills: { name: string; proficiencyLevel: 1 | 2 | 3 | 4 | 5; yearsUsed: number | null }[];
+  learningSkills: string[];
+  desiredSkills: string[];
+  targetRoles: string[];
+  targetIndustries: string[];
+  networkStrengthByIndustry: { industry: string; strength: 1 | 2 | 3 }[];
+  confidence: {
+    currentSituation: number;
+    skills: number;
+    goals: number;
+  };
+  notes: string[];
+};
+
 // ─── Signal Categorization Prompt (claude-haiku) ──────────────────────────────
 
 export function buildSignalCategorizationPrompt(rawContent: string): string {
@@ -59,6 +80,60 @@ Return ONLY valid JSON matching this exact schema (no markdown, no explanation):
 
 Magnitude guide: 1=minor trend, 2=significant shift, 3=structural change.
 Always include specific company names, numbers, and percentages when available.`;
+}
+
+// ─── Profile Import Prompt (claude-haiku) ────────────────────────────────────
+
+export function buildProfileImportPrompt(rawText: string): string {
+  return `You extract structured career profile fields from a resume or LinkedIn profile PDF.
+
+The user will review and confirm every field. Your job is to prefill only what the document supports.
+Do not invent private preferences, income, visa status, family constraints, or learning capacity.
+
+RAW PROFILE TEXT:
+${rawText.slice(0, 24000)}
+
+Return ONLY valid JSON matching this exact schema:
+{
+  "currentRole": "string or null",
+  "currentIndustry": "string or null",
+  "yearsOfExperience": 0,
+  "educationLevel": "High School | Bachelor's | Master's | PhD | Bootcamp | Self-taught | null",
+  "educationField": "string or null",
+  "currentLocation": "string or null",
+  "primarySkills": [
+    { "name": "Skill", "proficiencyLevel": 1, "yearsUsed": 0 }
+  ],
+  "learningSkills": ["Skill"],
+  "desiredSkills": ["Skill"],
+  "targetRoles": ["Role"],
+  "targetIndustries": ["Industry"],
+  "networkStrengthByIndustry": [
+    { "industry": "Industry", "strength": 1 }
+  ],
+  "confidence": {
+    "currentSituation": 0.0,
+    "skills": 0.0,
+    "goals": 0.0
+  },
+  "notes": ["Short note about what was inferred or missing"]
+}
+
+Extraction rules:
+- currentRole should be the most recent role/title.
+- currentIndustry should be normalized to a common industry name, inferred from recent companies if needed.
+- yearsOfExperience should be an integer estimate from work history dates. If dates are insufficient, return null.
+- educationLevel must match one of the listed labels or null.
+- primarySkills should include 5-12 strongest skills from skills sections, role descriptions, and projects.
+- proficiencyLevel is an estimate: 5=expert/core repeated senior use, 4=strong professional, 3=working, 2=exposure, 1=mentioned only.
+- yearsUsed can be approximate from work dates; use null if unsupported.
+- learningSkills and desiredSkills should usually be empty unless the text explicitly says currently learning/interested in.
+- targetRoles and targetIndustries are weak inferences from headline/about/open-to-work language; otherwise return empty arrays.
+- networkStrengthByIndustry may be inferred from repeated industries in work history, strength 1-3.
+- Never include more than 12 primarySkills, 5 targetRoles, 5 targetIndustries, or 5 network entries.
+- Remove duplicates and keep names concise.
+- Use null/[] for unknown fields instead of guessing.
+- confidence values must be between 0 and 1.`;
 }
 
 // ─── Recommendation Generation Prompt (claude-sonnet) ────────────────────────
