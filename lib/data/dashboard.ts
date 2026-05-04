@@ -41,6 +41,7 @@ export type DashboardProfile = {
   targetIndustries: string[];
   primarySkillNames: string[];
   incomeGoal: number | null;
+  currentCompensation: number | null;
 };
 
 export async function getDashboardData(userId: string): Promise<{
@@ -169,6 +170,7 @@ export async function getDashboardData(userId: string): Promise<{
       targetIndustries: profile.targetIndustries,
       primarySkillNames: userSkills,
       incomeGoal: profile.incomeGoal,
+      currentCompensation: profile.currentCompensation,
     },
     recommendation: recRow,
     briefDiff,
