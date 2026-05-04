@@ -50,23 +50,34 @@ export function ImportCard({ onImported }: Props) {
 
     setError("");
     startTransition(async () => {
-      const formData = new FormData();
-      if (file) formData.append("file", file);
-      if (text.trim()) formData.append("text", text.trim());
+      try {
+        const formData = new FormData();
+        if (file) formData.append("file", file);
+        if (text.trim()) formData.append("text", text.trim());
 
-      const response = await fetch("/api/profile/import", {
-        method: "POST",
-        body: formData,
-      });
-      const payload = await response.json();
+        const response = await fetch("/api/profile/import", {
+          method: "POST",
+          body: formData,
+        });
 
-      if (!response.ok || !payload.ok) {
-        setError(payload.error ?? "Import failed.");
-        return;
+        let payload: { ok?: boolean; error?: string; draft?: ProfileImportDraft };
+        try {
+          payload = await response.json();
+        } catch {
+          setError("Import failed — server returned an unexpected response.");
+          return;
+        }
+
+        if (!response.ok || !payload.ok) {
+          setError(payload.error ?? "Import failed.");
+          return;
+        }
+
+        setDraft(payload.draft!);
+        onImported(payload.draft!);
+      } catch {
+        setError("Import failed — please try again.");
       }
-
-      setDraft(payload.draft);
-      onImported(payload.draft);
     });
   }
 
