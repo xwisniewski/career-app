@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { PDFParse } from "pdf-parse";
 import mammoth from "mammoth";
 import { auth } from "@/auth";
 import { extractProfileImport } from "@/lib/profile-import/extract";
@@ -8,6 +7,35 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
+
+async function extractPdfText(buffer: Buffer): Promise<string> {
+  // Dynamic import + disable worker — avoids @napi-rs/canvas crash in serverless
+  const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "";
+
+  const loadingTask = pdfjsLib.getDocument({
+    data: new Uint8Array(buffer),
+    useWorkerFetch: false,
+    isEvalSupported: false,
+    useSystemFonts: true,
+  });
+
+  const pdf = await loadingTask.promise;
+  const pages: string[] = [];
+
+  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+    const page = await pdf.getPage(pageNum);
+    const content = await page.getTextContent();
+    const pageText = content.items
+      .map((item) => ("str" in item && typeof item.str === "string" ? item.str : ""))
+      .join(" ");
+    pages.push(pageText);
+    page.cleanup();
+  }
+
+  await pdf.destroy();
+  return pages.join("\n\n");
+}
 
 async function extractTextFromFile(file: File): Promise<string> {
   if (file.size > MAX_FILE_BYTES) {
@@ -20,13 +48,7 @@ async function extractTextFromFile(file: File): Promise<string> {
   const type = file.type.toLowerCase();
 
   if (type.includes("pdf") || name.endsWith(".pdf")) {
-    const parser = new PDFParse({ data: buffer });
-    try {
-      const result = await parser.getText();
-      return result.text;
-    } finally {
-      await parser.destroy();
-    }
+    return extractPdfText(buffer);
   }
 
   if (
