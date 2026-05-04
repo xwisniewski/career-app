@@ -97,8 +97,8 @@ export function ImportCard({ onImported }: Props) {
         )}
       </div>
 
-      <div className="grid gap-4 p-4 md:grid-cols-[1fr_1.1fr]">
-        <div className="space-y-3">
+      <div className="space-y-4 p-4">
+        <div className="grid gap-4 md:grid-cols-[1fr_1.1fr]">
           <label className="block">
             <span className="mb-1 block text-sm font-medium text-zinc-300">Resume / LinkedIn PDF</span>
             <input
@@ -108,29 +108,30 @@ export function ImportCard({ onImported }: Props) {
               onChange={(event) => setFileName(event.target.files?.[0]?.name ?? "")}
               className="block w-full text-[12px] text-zinc-500 file:mr-3 file:border file:border-zinc-800 file:bg-zinc-950 file:px-3 file:py-2 file:text-[12px] file:text-zinc-300 hover:file:border-zinc-600"
             />
+            {fileName && <p className="mono mt-1 text-[10px] tracking-[0.08em] text-zinc-600">{fileName}</p>}
           </label>
-          {fileName && <p className="mono text-[10px] tracking-[0.08em] text-zinc-600">{fileName}</p>}
-          <button
-            type="button"
-            onClick={handleImport}
-            disabled={isPending}
-            className="btn-primary w-full text-[13px]"
-          >
-            {isPending ? "Extracting profile…" : "Import and prefill"}
-          </button>
-          {error && <p className="text-[12px] text-red-400">{error}</p>}
+
+          <label className="block">
+            <span className="mb-1 block text-sm font-medium text-zinc-300">Or paste LinkedIn / resume text</span>
+            <textarea
+              value={text}
+              onChange={(event) => setText(event.target.value)}
+              rows={4}
+              placeholder="Paste your LinkedIn profile or resume text here..."
+              className="input min-h-[100px] resize-y text-[13px]"
+            />
+          </label>
         </div>
 
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-zinc-300">Or paste LinkedIn profile text</span>
-          <textarea
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-            rows={5}
-            placeholder="Paste profile text, resume text, or LinkedIn PDF text here..."
-            className="input min-h-[132px] resize-y text-[13px]"
-          />
-        </label>
+        <button
+          type="button"
+          onClick={handleImport}
+          disabled={isPending}
+          className="btn-primary w-full text-[13px]"
+        >
+          {isPending ? "Extracting profile…" : "Import and prefill"}
+        </button>
+        {error && <p className="text-[12px] text-red-400">{error}</p>}
       </div>
 
       {draft && (
