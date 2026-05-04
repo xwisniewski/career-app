@@ -177,6 +177,26 @@
     background-color: #11100f !important;
   }
 
+  /* Restore button colours overridden by terminal theme above */
+  .onboarding-terminal .btn-primary {
+    background-color: #ffffff !important;
+    color: rgb(9 9 11) !important;
+  }
+  .onboarding-terminal .btn-primary:hover {
+    background-color: rgb(244 244 245) !important;
+  }
+  .onboarding-terminal .btn-secondary {
+    background-color: transparent !important;
+    color: rgb(212 212 216) !important;
+  }
+  .onboarding-terminal .btn-ghost {
+    color: rgb(161 161 170) !important;
+  }
+  .onboarding-terminal .btn-ghost:hover {
+    color: #ffffff !important;
+    background-color: rgb(39 39 42) !important;
+  }
+
   .onboarding-terminal .border-gray-100,
   .onboarding-terminal .border-gray-200,
   .onboarding-terminal .border-gray-300 {

@@ -107,7 +107,10 @@ export function ImportCard({ onImported }: Props) {
         {/* Option A — File upload */}
         <div>
           <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.1em] text-zinc-500">
-            Option A — Upload PDF or DOCX
+            Option A — Upload resume or LinkedIn PDF
+          </p>
+          <p className="mb-2 text-[11px] text-zinc-600">
+            On LinkedIn: go to your profile → More → Save to PDF
           </p>
           <div
             className="flex cursor-pointer items-center gap-3 border border-dashed border-zinc-700 px-4 py-3 hover:border-zinc-500 transition-colors"

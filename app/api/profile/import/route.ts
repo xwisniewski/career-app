@@ -19,8 +19,10 @@ async function extractTextFromFile(file: File): Promise<string> {
   const type = file.type.toLowerCase();
 
   if (type.includes("pdf") || name.endsWith(".pdf")) {
-    const { default: pdfParse } = await import("pdf-parse");
-    const data = await pdfParse(buffer);
+    // Import lib path directly — the index.js reads a test file at load time causing ENOENT
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { default: pdfParse } = await import("pdf-parse/lib/pdf-parse.js" as any);
+    const data = await (pdfParse as (buf: Buffer) => Promise<{ text: string }>)(buffer);
     return data.text;
   }
 
