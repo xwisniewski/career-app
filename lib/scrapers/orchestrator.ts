@@ -7,6 +7,7 @@ import { HnHiringScraper } from "./hn-hiring";
 import { RssScraper } from "./rss";
 import type { Scraper, RawSignal } from "./base";
 import { ScrapingStatus } from "@/app/generated/prisma/client";
+import { processSignalNotifications } from "@/lib/notifications/signal-alerts";
 
 const SCRAPERS: Scraper[] = [
   new FredScraper(),
@@ -29,10 +30,12 @@ async function isDuplicate(source: string, headline: string): Promise<boolean> {
 async function runScraper(scraper: Scraper): Promise<{
   signalsFound: number;
   signalsSaved: number;
+  signalIds: string[];
   errors: string[];
 }> {
   let signalsFound = 0;
   let signalsSaved = 0;
+  const signalIds: string[] = [];
   const errors: string[] = [];
 
   let rawSignals: RawSignal[] = [];
@@ -42,7 +45,7 @@ async function runScraper(scraper: Scraper): Promise<{
     signalsFound = rawSignals.length;
   } catch (err) {
     errors.push(`Scraper failed: ${String(err)}`);
-    return { signalsFound: 0, signalsSaved: 0, errors };
+    return { signalsFound: 0, signalsSaved: 0, signalIds, errors };
   }
 
   // Process in parallel batches
@@ -57,7 +60,7 @@ async function runScraper(scraper: Scraper): Promise<{
             return;
           }
           if (await isDuplicate(parsed.source, parsed.headline)) return;
-          await db.macroSignal.create({
+          const signal = await db.macroSignal.create({
             data: {
               source: parsed.source,
               sourceUrl: parsed.sourceUrl,
@@ -74,6 +77,7 @@ async function runScraper(scraper: Scraper): Promise<{
               relevantSkills: parsed.relevantSkills,
             },
           });
+          signalIds.push(signal.id);
           signalsSaved++;
         } catch (err) {
           errors.push(`Failed to save signal from ${raw.sourceUrl}: ${String(err)}`);
@@ -82,7 +86,7 @@ async function runScraper(scraper: Scraper): Promise<{
     );
   }
 
-  return { signalsFound, signalsSaved, errors };
+  return { signalsFound, signalsSaved, signalIds, errors };
 }
 
 export async function runOrchestrator(): Promise<void> {
@@ -108,6 +112,8 @@ export async function runOrchestrator(): Promise<void> {
 
   // Run all scrapers in parallel
   const results = await Promise.all(SCRAPERS.map((scraper) => runScraper(scraper)));
+  const savedSignalIds = results.flatMap((result) => result.signalIds);
+  const notificationResult = await processSignalNotifications(savedSignalIds);
 
   // Update run records
   await Promise.all(
@@ -140,5 +146,7 @@ export async function runOrchestrator(): Promise<void> {
     })
   );
 
-  console.log("[orchestrator] Done");
+  console.log(
+    `[orchestrator] Done, notifications created=${notificationResult.created}, emailed=${notificationResult.emailed}`
+  );
 }

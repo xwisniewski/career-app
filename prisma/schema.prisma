@@ -71,6 +71,17 @@ enum ScrapingStatus {
   PARTIAL
 }
 
+enum NotificationType {
+  SIGNAL_MATCH
+}
+
+enum NotificationSeverity {
+  INFO
+  WATCH
+  IMPORTANT
+  URGENT
+}
+
 // ─── Auth (NextAuth / Auth.js) ────────────────────────────────────────────────
 
 model User {
@@ -89,6 +100,7 @@ model User {
   profile         UserProfile?
   recommendations CareerRecommendation[]
   threatSnapshots ThreatLevelSnapshot[]
+  signalNotifications SignalNotification[]
 }
 
 model Account {
@@ -213,11 +225,37 @@ model MacroSignal {
   createdAt DateTime @default(now())
 
   recommendations CareerRecommendation[] @relation("RecommendationSignals")
+  notifications   SignalNotification[]
 
   @@index([category])
   @@index([scrapedAt])
   @@index([source])
   @@index([sentiment])
+}
+
+// ─── Notifications ───────────────────────────────────────────────────────────
+
+model SignalNotification {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  signalId String
+  signal   MacroSignal @relation(fields: [signalId], references: [id], onDelete: Cascade)
+
+  type      NotificationType     @default(SIGNAL_MATCH)
+  severity  NotificationSeverity
+  title     String
+  body      String               @db.Text
+  score     Int
+
+  readAt   DateTime?
+  emailedAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, signalId, type])
+  @@index([userId, readAt])
+  @@index([createdAt])
+  @@index([severity])
 }
 
 // ─── AI Recommendations ───────────────────────────────────────────────────────
