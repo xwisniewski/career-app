@@ -36,7 +36,7 @@ export function SignalFeed({ signals }: { signals: SignalRow[] }) {
   }, [signals, category, sentiment]);
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex min-h-0 flex-col gap-5">
       {/* Column header */}
       <div>
         <h2 className="text-[15px] font-semibold text-white tracking-[-0.01em]">Signal Feed</h2>
@@ -78,9 +78,9 @@ export function SignalFeed({ signals }: { signals: SignalRow[] }) {
       </div>
 
       {/* Signal list */}
-      <div className="flex flex-col gap-2.5 overflow-y-auto max-h-[calc(100vh-240px)] pr-1">
+      <div className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto pr-1">
         {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="flex min-h-[280px] flex-1 flex-col items-center justify-center py-16 text-center">
             <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center mb-3">
               <span className="w-2 h-2 rounded-full bg-zinc-600 block" />
             </div>

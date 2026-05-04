@@ -15,8 +15,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           role: session.user.role ?? "USER",
         }}
       />
-      <main className="flex-1 ml-[200px] min-h-screen">
-        <div className="max-w-screen-xl mx-auto px-8 py-8">{children}</div>
+      <main className="flex-1 ml-[200px] min-h-screen min-w-0">
+        <div className="w-full max-w-[1720px] px-8 py-8">{children}</div>
       </main>
     </div>
   );

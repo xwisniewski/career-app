@@ -32,7 +32,7 @@ export function IntelligenceBrief({
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex min-h-0 flex-col gap-4">
       {/* Column header */}
       <div className="flex items-start justify-between">
         <div>
@@ -51,7 +51,7 @@ export function IntelligenceBrief({
       </div>
 
       {recommendation ? (
-        <div className="flex flex-col gap-3 overflow-y-auto max-h-[calc(100vh-240px)] pr-1">
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1">
           {/* What changed banner */}
           {briefDiff && <BriefDiffBanner diff={briefDiff} />}
 
@@ -127,7 +127,7 @@ export function IntelligenceBrief({
       )}
 
       {/* Ask the Brief chat — only shown when a recommendation exists */}
-      {recommendation && <BriefChat />}
+      {recommendation && <div className="shrink-0"><BriefChat /></div>}
     </div>
   );
 }

@@ -22,6 +22,11 @@ export function BriefDiffBanner({ diff }: { diff: BriefDiff }) {
 
   if (rows.length === 0) return null;
 
+  const visibleRows = rows.flatMap((row) =>
+    row.items.map((item) => ({ label: row.label, kind: row.kind, item }))
+  );
+  const hiddenCount = Math.max(0, visibleRows.length - 6);
+
   return (
     <div className="rounded-[10px] border border-blue-500/20 bg-blue-500/5 p-4">
       <div className="flex items-center gap-2 mb-3">
@@ -36,24 +41,27 @@ export function BriefDiffBanner({ diff }: { diff: BriefDiff }) {
         </p>
       </div>
       <ul className="space-y-1.5">
-        {rows.map((row) =>
-          row.items.map((item, i) => (
-            <li key={`${row.label}-${i}`} className="flex items-start gap-2">
-              <span
-                className={`text-[11px] font-bold shrink-0 mt-px ${
-                  row.kind === "added" ? "text-emerald-400" : "text-zinc-500"
-                }`}
-              >
-                {row.kind === "added" ? "+" : "−"}
-              </span>
-              <span className="text-[12px] text-zinc-300 leading-snug">
-                <span className="text-zinc-500">{row.label}: </span>
-                {item}
-              </span>
-            </li>
-          ))
-        )}
+        {visibleRows.slice(0, 6).map((row, i) => (
+          <li key={`${row.label}-${i}`} className="flex items-start gap-2">
+            <span
+              className={`text-[11px] font-bold shrink-0 mt-px ${
+                row.kind === "added" ? "text-emerald-400" : "text-zinc-500"
+              }`}
+            >
+              {row.kind === "added" ? "+" : "−"}
+            </span>
+            <span className="line-clamp-2 text-[12px] text-zinc-300 leading-snug">
+              <span className="text-zinc-500">{row.label}: </span>
+              {row.item}
+            </span>
+          </li>
+        ))}
       </ul>
+      {hiddenCount > 0 && (
+        <p className="mt-2 text-[11px] text-blue-400/60">
+          +{hiddenCount} more changes in the full report
+        </p>
+      )}
     </div>
   );
 }

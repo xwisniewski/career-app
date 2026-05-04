@@ -21,10 +21,10 @@ export default async function DashboardPage() {
   if (!profile.onboardingComplete) redirect("/onboarding");
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_300px] gap-6 items-start">
+    <div className="grid grid-cols-1 gap-6 lg:h-[calc(100vh-64px)] lg:overflow-hidden lg:grid-cols-[minmax(280px,0.85fr)_minmax(460px,1.25fr)_340px] 2xl:grid-cols-[minmax(340px,0.9fr)_minmax(560px,1.35fr)_360px]">
       <SignalFeed signals={signals} />
       <IntelligenceBrief recommendation={recommendation} briefDiff={briefDiff} />
-      <div className="flex flex-col gap-4">
+      <div className="min-h-0 pr-1 lg:overflow-y-auto">
         <QuickActions
           recommendation={recommendation}
           profile={profile}
