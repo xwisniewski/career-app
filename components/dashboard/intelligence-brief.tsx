@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import type { RecommendationRow, BriefDiff } from "@/lib/data/dashboard";
+import type { RecommendationRow } from "@/lib/data/dashboard";
+import type { BriefDiff } from "@/lib/data/brief-diff";
 import { BriefDiffBanner } from "./brief-diff-banner";
 import { BriefChat } from "./brief-chat";
 

@@ -5,7 +5,6 @@ import { getLatestThreatSnapshot, getSparklineData } from "@/lib/data/threat-lev
 import { SignalFeed } from "@/components/dashboard/signal-feed";
 import { IntelligenceBrief } from "@/components/dashboard/intelligence-brief";
 import { QuickActions } from "@/components/dashboard/quick-actions";
-import { ShareLinkedInButton } from "@/components/dashboard/share-linkedin-button";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -26,8 +25,13 @@ export default async function DashboardPage() {
       <SignalFeed signals={signals} />
       <IntelligenceBrief recommendation={recommendation} briefDiff={briefDiff} />
       <div className="flex flex-col gap-4">
-        <QuickActions recommendation={recommendation} profile={profile} threatSnapshot={threatSnapshot} sparklineData={sparklineData} />
-        <ShareLinkedInButton userId={session.user.id} score={threatSnapshot?.score ?? null} />
+        <QuickActions
+          recommendation={recommendation}
+          profile={profile}
+          threatSnapshot={threatSnapshot}
+          sparklineData={sparklineData}
+          userId={session.user.id}
+        />
       </div>
     </div>
   );

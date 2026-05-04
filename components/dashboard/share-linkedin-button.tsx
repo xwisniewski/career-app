@@ -29,7 +29,7 @@ export function ShareLinkedInButton({ userId, score }: Props) {
   return (
     <button
       onClick={handleShare}
-      className="flex items-center gap-2 text-[12px] font-medium text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 rounded-md px-3 py-2 transition-all duration-150"
+      className="flex w-full items-center justify-center gap-2 text-[12px] font-medium text-zinc-300 hover:text-white border border-zinc-700 hover:border-zinc-500 rounded-md px-3 py-2.5 transition-all duration-150"
     >
       <svg
         viewBox="0 0 24 24"

@@ -2,13 +2,15 @@ import Link from "next/link";
 import type { ThreatLevelSnapshotRow, SparklinePoint } from "@/lib/data/threat-level";
 import { ScoreDial } from "./score-dial";
 import { ThreatSparkline } from "./sparkline";
+import { ShareLinkedInButton } from "@/components/dashboard/share-linkedin-button";
 
 type Props = {
   snapshot: ThreatLevelSnapshotRow | null;
   sparklineData?: SparklinePoint[];
+  userId?: string;
 };
 
-export function ThreatWidget({ snapshot, sparklineData = [] }: Props) {
+export function ThreatWidget({ snapshot, sparklineData = [], userId }: Props) {
   if (!snapshot) {
     return (
       <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
@@ -101,6 +103,12 @@ export function ThreatWidget({ snapshot, sparklineData = [] }: Props) {
       >
         Full breakdown
       </Link>
+
+      {userId && (
+        <div className="mt-2">
+          <ShareLinkedInButton userId={userId} score={snapshot.score} />
+        </div>
+      )}
     </div>
   );
 }

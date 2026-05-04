@@ -1,4 +1,4 @@
-import type { BriefDiff } from "@/lib/data/dashboard";
+import type { BriefDiff } from "@/lib/data/brief-diff";
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();

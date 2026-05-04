@@ -1,6 +1,7 @@
 import "server-only";
 import { db } from "@/lib/db";
 import type { MacroSignal } from "@/app/generated/prisma/client";
+import { computeBriefDiff, type BriefDiff } from "@/lib/data/brief-diff";
 
 export type SignalRow = {
   id: string;
@@ -41,33 +42,6 @@ export type DashboardProfile = {
   primarySkillNames: string[];
   incomeGoal: number | null;
 };
-
-export type BriefDiff = {
-  newOpportunities: string[];
-  removedOpportunities: string[];
-  newRisks: string[];
-  removedRisks: string[];
-  newSkills: string[];
-  removedSkills: string[];
-  previousGeneratedAt: string | null;
-};
-
-function computeBriefDiff(
-  current: RecommendationRow,
-  previous: { biggestOpportunities: string[]; biggestRisks: string[]; skillsToAccelerate: { skill: string }[] }
-): BriefDiff {
-  const currentSkills = current.skillsToAccelerate.map((s) => s.skill);
-  const prevSkills = previous.skillsToAccelerate.map((s) => s.skill);
-  return {
-    newOpportunities: current.biggestOpportunities.filter((o) => !previous.biggestOpportunities.includes(o)),
-    removedOpportunities: previous.biggestOpportunities.filter((o) => !current.biggestOpportunities.includes(o)),
-    newRisks: current.biggestRisks.filter((r) => !previous.biggestRisks.includes(r)),
-    removedRisks: previous.biggestRisks.filter((r) => !current.biggestRisks.includes(r)),
-    newSkills: currentSkills.filter((s) => !prevSkills.includes(s)),
-    removedSkills: prevSkills.filter((s) => !currentSkills.includes(s)),
-    previousGeneratedAt: null, // set by caller
-  };
-}
 
 export async function getDashboardData(userId: string): Promise<{
   profile: DashboardProfile | null;

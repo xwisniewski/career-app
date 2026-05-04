@@ -7,7 +7,8 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "db:seed": "npx tsx prisma/seed.ts"
+    "db:seed": "npx tsx prisma/seed.ts",
+    "test:brief-diff": "tsx scripts/test-brief-diff.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
