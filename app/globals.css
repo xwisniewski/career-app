@@ -158,4 +158,43 @@
   .text-accent { color: rgb(var(--accent)); }
   .bg-accent-soft { background-color: rgb(var(--accent-soft)); }
   .border-accent-line { border-color: rgb(var(--accent-line)); }
+
+  .onboarding-terminal .text-gray-900,
+  .onboarding-terminal .text-gray-800,
+  .onboarding-terminal .text-gray-700 {
+    color: rgb(244 244 245) !important;
+  }
+
+  .onboarding-terminal .text-gray-600,
+  .onboarding-terminal .text-gray-500,
+  .onboarding-terminal .text-gray-400 {
+    color: rgb(113 113 122) !important;
+  }
+
+  .onboarding-terminal .bg-gray-50,
+  .onboarding-terminal .bg-gray-100,
+  .onboarding-terminal .bg-white {
+    background-color: #11100f !important;
+  }
+
+  .onboarding-terminal .border-gray-100,
+  .onboarding-terminal .border-gray-200,
+  .onboarding-terminal .border-gray-300 {
+    border-color: rgb(39 39 42) !important;
+  }
+
+  .onboarding-terminal .rounded-lg,
+  .onboarding-terminal .rounded-xl,
+  .onboarding-terminal .rounded-full {
+    border-radius: 0 !important;
+  }
+
+  .onboarding-terminal .accent-gray-900 {
+    accent-color: rgb(var(--accent));
+  }
+
+  .onboarding-terminal select option {
+    background: #11100f;
+    color: rgb(244 244 245);
+  }
 }

@@ -11,27 +11,27 @@ const STEPS = [
 export function ProgressBar({ currentStep }: { currentStep: number }) {
   return (
     <div className="mb-8">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-gray-700">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="mono text-[10px] uppercase tracking-[0.14em] text-zinc-500">
           Step {currentStep} of {STEPS.length}
         </span>
-        <span className="text-sm text-gray-500">{STEPS[currentStep - 1]}</span>
+        <span className="eyebrow text-accent">{STEPS[currentStep - 1]}</span>
       </div>
-      <div className="w-full bg-gray-100 rounded-full h-1.5">
+      <div className="h-1.5 w-full bg-zinc-900">
         <div
-          className="bg-gray-900 h-1.5 rounded-full transition-all duration-300"
+          className="h-1.5 bg-[rgb(var(--accent))] transition-all duration-300"
           style={{ width: `${(currentStep / STEPS.length) * 100}%` }}
         />
       </div>
-      <div className="flex justify-between mt-2">
+      <div className="mt-2 flex justify-between">
         {STEPS.map((label, i) => (
           <div
             key={label}
-            className={`text-xs ${
-              i + 1 <= currentStep ? "text-gray-900 font-medium" : "text-gray-400"
+            className={`mono text-[10px] ${
+              i + 1 <= currentStep ? "text-zinc-200" : "text-zinc-700"
             }`}
           >
-            {i + 1}
+            {String(i + 1).padStart(2, "0")}
           </div>
         ))}
       </div>
