@@ -4,6 +4,7 @@ import type { SignalDriver, Counterfactor } from "@/lib/threat-level/types";
 
 export type ThreatLevelSnapshotRow = {
   id: string;
+  userId: string;
   date: string;
   score: number;
   previousScore: number | null;
@@ -124,6 +125,7 @@ function startOfDay(date: Date): Date {
 
 function toRow(s: {
   id: string;
+  userId: string;
   date: Date;
   score: number;
   previousScore: number | null;
@@ -140,6 +142,7 @@ function toRow(s: {
 }): ThreatLevelSnapshotRow {
   return {
     id: s.id,
+    userId: s.userId,
     date: s.date.toISOString().split("T")[0],
     score: s.score,
     previousScore: s.previousScore,

@@ -30,7 +30,6 @@ export default async function DashboardPage() {
           profile={profile}
           threatSnapshot={threatSnapshot}
           sparklineData={sparklineData}
-          userId={session.user.id}
         />
       </div>
     </div>

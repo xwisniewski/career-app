@@ -14,13 +14,11 @@ export function QuickActions({
   profile,
   threatSnapshot,
   sparklineData = [],
-  userId,
 }: {
   recommendation: RecommendationRow | null;
   profile: DashboardProfile | null;
   threatSnapshot: ThreatLevelSnapshotRow | null;
   sparklineData?: SparklinePoint[];
-  userId: string;
 }) {
   const topSkills = recommendation?.skillsToAccelerate.slice(0, 3) ?? [];
   const topRole = recommendation?.rolesToTarget[0] ?? null;
@@ -35,7 +33,7 @@ export function QuickActions({
       </div>
 
       {/* Threat Level widget */}
-      <ThreatWidget snapshot={threatSnapshot} sparklineData={sparklineData} userId={userId} />
+      <ThreatWidget snapshot={threatSnapshot} sparklineData={sparklineData} />
 
       {/* Income goal */}
       {profile?.incomeGoal && (
