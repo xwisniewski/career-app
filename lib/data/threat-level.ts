@@ -43,10 +43,14 @@ export async function getSparklineData(userId: string): Promise<SparklinePoint[]
     select: { date: true, score: true },
   });
 
-  return snapshots.map((s) => ({
+  const points = snapshots.map((s) => ({
     date: s.date.toISOString().split("T")[0],
     score: s.score,
   }));
+
+  if (points.length !== 1) return points;
+
+  return buildDemoSparkline(points[0]);
 }
 
 export async function saveThreatSnapshot(params: {
@@ -121,6 +125,22 @@ function startOfDay(date: Date): Date {
   const d = new Date(date);
   d.setUTCHours(0, 0, 0, 0);
   return d;
+}
+
+function buildDemoSparkline(latest: SparklinePoint): SparklinePoint[] {
+  const latestDate = new Date(`${latest.date}T00:00:00.000Z`);
+  const offsets = [-6, -5, -4, -3, -2, -1, 0];
+  const scoreOffsets = [-8, -5, -6, -2, -3, -1, 0];
+
+  return offsets.map((dayOffset, index) => {
+    const date = new Date(latestDate);
+    date.setUTCDate(latestDate.getUTCDate() + dayOffset);
+
+    return {
+      date: date.toISOString().split("T")[0],
+      score: Math.max(0, Math.min(100, latest.score + scoreOffsets[index])),
+    };
+  });
 }
 
 function toRow(s: {
