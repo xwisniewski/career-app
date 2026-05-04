@@ -26,22 +26,6 @@ function currentTime() {
   });
 }
 
-function metricCell(label: string, value: string, tone: "default" | "good" | "bad" | "accent" = "default") {
-  const toneClass = {
-    default: "text-zinc-200",
-    good: "text-emerald-300",
-    bad: "text-red-400",
-    accent: "text-accent",
-  }[tone];
-
-  return (
-    <div className="border-r border-zinc-900 px-5 py-3">
-      <p className="eyebrow mb-2 text-zinc-600">{label}</p>
-      <p className={`num text-[18px] font-semibold leading-none ${toneClass}`}>{value}</p>
-    </div>
-  );
-}
-
 function MiniSparkline({ tone = "good" }: { tone?: "good" | "bad" | "flat" }) {
   const color = tone === "bad" ? "#ef4444" : tone === "flat" ? "#71717a" : "#86efac";
   const points =
@@ -160,7 +144,6 @@ export default async function DashboardPage() {
 
   const currentComp = profile.currentCompensation ?? (profile.incomeGoal ? Math.round(profile.incomeGoal * 0.45) : 90000);
   const targetIncome = profile.incomeGoal ?? 200000;
-  const threatScore = threatSnapshot?.score ?? 0;
   const topRole = recommendation?.rolesToTarget[0]?.role ?? profile.targetRoles[0] ?? "AI Systems Engineer";
   const cluster = topRole
     .split(/\s+/)
@@ -171,21 +154,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="-mx-8 -my-8 min-h-screen bg-[#080706] text-zinc-200">
-      <div className="grid border-b border-zinc-900 lg:grid-cols-[repeat(8,minmax(0,1fr))_minmax(180px,1.4fr)]">
-        {metricCell("Live", "● LIVE", "good")}
-        {metricCell("Trend", "+2.1σ", "good")}
-        {metricCell("Cluster", cluster || "AI·IC")}
-        {metricCell("Threat", String(threatScore), threatScore >= 60 ? "bad" : "default")}
-        {metricCell("Δ 7D", threatSnapshot?.delta ? `${threatSnapshot.delta > 0 ? "+" : ""}${threatSnapshot.delta}` : "+3", "bad")}
-        {metricCell("Income", `$${Math.round(currentComp / 1000)}k`)}
-        {metricCell("Goal", `$${Math.round(targetIncome / 1000)}k`, "accent")}
-        {metricCell("Signals/30d", String(signals.length))}
-        <div className="flex items-center justify-end px-5 font-mono text-[12px] tracking-widest text-zinc-500">
-          {currentTime()} PT
-        </div>
-      </div>
-
-      <div className="grid lg:h-[calc(100vh-73px)] lg:grid-cols-[minmax(0,1fr)_390px]">
+      <div className="grid lg:h-[calc(100vh-46px)] lg:grid-cols-[minmax(0,1fr)_390px]">
         <main className="min-h-0 overflow-y-auto border-r border-zinc-900 px-16 py-14">
           <div className="mx-auto max-w-[1120px]">
             <div className="mb-8 flex items-center justify-between gap-5">

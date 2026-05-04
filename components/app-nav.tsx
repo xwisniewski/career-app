@@ -5,12 +5,12 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 
 const NAV_LINKS = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/threat-level", label: "Threat Level" },
-  { href: "/recommendations", label: "Recommendations" },
-  { href: "/signals", label: "Signals" },
-  { href: "/profile", label: "Profile" },
-  { href: "/team", label: "Team" },
+  { href: "/dashboard", label: "Dashboard", key: "F1" },
+  { href: "/threat-level", label: "Threat Level", key: "F2" },
+  { href: "/recommendations", label: "Recommendations", key: "F3" },
+  { href: "/signals", label: "Signals", key: "F4" },
+  { href: "/profile", label: "Profile", key: "F5" },
+  { href: "/team", label: "Team", key: "F6" },
 ];
 
 type Props = {
@@ -21,12 +21,12 @@ export function AppNav({ user }: Props) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-[200px] fixed top-0 left-0 h-screen bg-zinc-950 border-r border-zinc-800/60 flex flex-col z-40">
+    <aside className="fixed left-0 top-0 z-40 flex h-screen w-[200px] flex-col border-r border-zinc-900 bg-[#080706]">
       {/* Logo */}
-      <div className="px-5 py-5 border-b border-zinc-800/60">
+      <div className="border-b border-zinc-900 px-5 py-5">
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 text-[14px] font-semibold text-white tracking-tight leading-tight"
+          className="flex items-center gap-2 text-[14px] font-semibold leading-tight tracking-tight text-white"
         >
           <span
             className="h-2 w-2"
@@ -37,48 +37,59 @@ export function AppNav({ user }: Props) {
       </div>
 
       {/* Nav links */}
-      <nav className="flex flex-col gap-0.5 p-3 flex-1">
-        {NAV_LINKS.map(({ href, label }) => {
+      <nav className="flex flex-1 flex-col gap-0.5 p-3">
+        {NAV_LINKS.map(({ href, label, key }) => {
           const active = pathname.startsWith(href);
           return (
             <Link
               key={href}
               href={href}
-              className={`px-3 py-2 rounded-md text-[13px] transition-all duration-150 ${
+              className={`group flex items-center gap-2 px-2.5 py-2 text-[13px] transition-all duration-150 ${
                 active
-                  ? "bg-zinc-800 text-white font-medium"
-                  : "text-zinc-500 hover:text-white hover:bg-zinc-800/60"
+                  ? "text-white font-medium"
+                  : "text-zinc-500 hover:text-white"
               }`}
             >
-              {label}
+              <span
+                className={`h-1 w-1 shrink-0 ${
+                  active ? "bg-[rgb(var(--accent))]" : "bg-transparent"
+                }`}
+              />
+              <span className="flex-1">{label}</span>
+              <span className="mono text-[9px] tracking-[0.1em] text-zinc-700 group-hover:text-zinc-500">
+                {key}
+              </span>
             </Link>
           );
         })}
         {user.role === "ADMIN" && (
           <Link
             href="/admin"
-            className={`px-3 py-2 rounded-md text-[13px] transition-all duration-150 ${
+            className={`mt-2 flex items-center gap-2 border-t border-zinc-900 px-2.5 py-3 text-[13px] transition-all duration-150 ${
               pathname.startsWith("/admin")
-                ? "bg-zinc-800 text-white font-medium"
-                : "text-zinc-500 hover:text-white hover:bg-zinc-800/60"
+                ? "text-white font-medium"
+                : "text-zinc-500 hover:text-white"
             }`}
           >
-            Admin
+            <span className="h-1 w-1 shrink-0" />
+            <span className="flex-1">Admin</span>
+            <span className="mono text-[9px] tracking-[0.1em] text-zinc-700">SYS</span>
           </Link>
         )}
       </nav>
 
       {/* User */}
-      <div className="p-4 border-t border-zinc-800/60">
-        <p className="font-mono text-[10px] tracking-wider text-zinc-500 mb-1 uppercase">
+      <div className="border-t border-zinc-900 p-4">
+        <p className="mono mb-2 text-[10px] uppercase tracking-[0.14em] text-zinc-600">
           Operator
         </p>
-        <p className="text-[12px] text-zinc-300 truncate mb-2">
-          {user.name ?? user.email}
-        </p>
+        <div className="mb-3 flex items-center gap-2">
+          <span className="pulse-dot h-[5px] w-[5px] rounded-full bg-emerald-300" />
+          <p className="truncate text-[12px] text-zinc-300">{user.name ?? user.email}</p>
+        </div>
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-500 hover:text-white transition-colors duration-150"
+          className="mono text-[10px] uppercase tracking-[0.14em] text-zinc-500 transition-colors duration-150 hover:text-white"
         >
           Sign out
         </button>
