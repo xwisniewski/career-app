@@ -162,7 +162,7 @@ export async function sendWeeklyDigests(): Promise<{ sent: number; errors: numbe
 
     try {
       await resend.emails.send({
-        from: "Trajectory.io <digest@trajectoryapp.io>",
+        from: "Trajectory.io <onboarding@resend.dev>",
         to: user.email,
         subject: `Your weekly brief — Threat Level ${snapshot?.score ?? "N/A"}`,
         html,
