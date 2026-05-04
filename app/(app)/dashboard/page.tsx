@@ -193,7 +193,7 @@ export default async function DashboardPage() {
                 <p className="eyebrow mb-7">{monthDay()} · Intelligence brief</p>
                 <h1 className="max-w-4xl font-serif text-[50px] leading-[1.07] tracking-[-0.04em] text-zinc-100 xl:text-[60px]">
                   The market moved while you slept.{" "}
-                  <span className="text-zinc-600">Three things matter this week.</span>
+                  <span className="text-zinc-600">Here’s what changed for you.</span>
                 </h1>
                 <p className="mt-7 font-mono text-[12px] tracking-[0.18em] text-zinc-600">
                   claude-sonnet-4 · synthesized from {signals.length || 284} signals · last run {currentTime()} PT · profile cited
