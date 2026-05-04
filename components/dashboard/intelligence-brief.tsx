@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import type { RecommendationRow } from "@/lib/data/dashboard";
+import type { RecommendationRow, BriefDiff } from "@/lib/data/dashboard";
+import { BriefDiffBanner } from "./brief-diff-banner";
+import { BriefChat } from "./brief-chat";
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -13,8 +15,10 @@ function timeAgo(iso: string) {
 
 export function IntelligenceBrief({
   recommendation,
+  briefDiff,
 }: {
   recommendation: RecommendationRow | null;
+  briefDiff?: BriefDiff | null;
 }) {
   const [isPending, startTransition] = useTransition();
   const [refreshed, setRefreshed] = useState(false);
@@ -47,6 +51,9 @@ export function IntelligenceBrief({
 
       {recommendation ? (
         <div className="flex flex-col gap-3 overflow-y-auto max-h-[calc(100vh-240px)] pr-1">
+          {/* What changed banner */}
+          {briefDiff && <BriefDiffBanner diff={briefDiff} />}
+
           {/* Narrative */}
           <div className="rounded-[10px] border border-zinc-800 p-5">
             <p className="label mb-2.5">Current Positioning</p>
@@ -117,6 +124,9 @@ export function IntelligenceBrief({
           </button>
         </div>
       )}
+
+      {/* Ask the Brief chat — only shown when a recommendation exists */}
+      {recommendation && <BriefChat />}
     </div>
   );
 }

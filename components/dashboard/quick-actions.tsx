@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { RecommendationRow, DashboardProfile } from "@/lib/data/dashboard";
-import type { ThreatLevelSnapshotRow } from "@/lib/data/threat-level";
+import type { ThreatLevelSnapshotRow, SparklinePoint } from "@/lib/data/threat-level";
 import { ThreatWidget } from "@/components/threat-level/threat-widget";
 
 const URGENCY_CONFIG = {
@@ -13,10 +13,12 @@ export function QuickActions({
   recommendation,
   profile,
   threatSnapshot,
+  sparklineData = [],
 }: {
   recommendation: RecommendationRow | null;
   profile: DashboardProfile | null;
   threatSnapshot: ThreatLevelSnapshotRow | null;
+  sparklineData?: SparklinePoint[];
 }) {
   const topSkills = recommendation?.skillsToAccelerate.slice(0, 3) ?? [];
   const topRole = recommendation?.rolesToTarget[0] ?? null;
@@ -31,7 +33,7 @@ export function QuickActions({
       </div>
 
       {/* Threat Level widget */}
-      <ThreatWidget snapshot={threatSnapshot} />
+      <ThreatWidget snapshot={threatSnapshot} sparklineData={sparklineData} />
 
       {/* Income goal */}
       {profile?.incomeGoal && (

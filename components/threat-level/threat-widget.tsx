@@ -1,12 +1,14 @@
 import Link from "next/link";
-import type { ThreatLevelSnapshotRow } from "@/lib/data/threat-level";
+import type { ThreatLevelSnapshotRow, SparklinePoint } from "@/lib/data/threat-level";
 import { ScoreDial } from "./score-dial";
+import { ThreatSparkline } from "./sparkline";
 
 type Props = {
   snapshot: ThreatLevelSnapshotRow | null;
+  sparklineData?: SparklinePoint[];
 };
 
-export function ThreatWidget({ snapshot }: Props) {
+export function ThreatWidget({ snapshot, sparklineData = [] }: Props) {
   if (!snapshot) {
     return (
       <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
@@ -83,6 +85,13 @@ export function ThreatWidget({ snapshot }: Props) {
               <p className="text-[11px] text-zinc-400 leading-snug line-clamp-1">{d.headline}</p>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* 30-day sparkline */}
+      {sparklineData.length >= 2 && (
+        <div className="mt-3">
+          <ThreatSparkline data={sparklineData} height={36} />
         </div>
       )}
 

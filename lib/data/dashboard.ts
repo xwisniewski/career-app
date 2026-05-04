@@ -42,23 +42,55 @@ export type DashboardProfile = {
   incomeGoal: number | null;
 };
 
+export type BriefDiff = {
+  newOpportunities: string[];
+  removedOpportunities: string[];
+  newRisks: string[];
+  removedRisks: string[];
+  newSkills: string[];
+  removedSkills: string[];
+  previousGeneratedAt: string | null;
+};
+
+function computeBriefDiff(
+  current: RecommendationRow,
+  previous: { biggestOpportunities: string[]; biggestRisks: string[]; skillsToAccelerate: { skill: string }[] }
+): BriefDiff {
+  const currentSkills = current.skillsToAccelerate.map((s) => s.skill);
+  const prevSkills = previous.skillsToAccelerate.map((s) => s.skill);
+  return {
+    newOpportunities: current.biggestOpportunities.filter((o) => !previous.biggestOpportunities.includes(o)),
+    removedOpportunities: previous.biggestOpportunities.filter((o) => !current.biggestOpportunities.includes(o)),
+    newRisks: current.biggestRisks.filter((r) => !previous.biggestRisks.includes(r)),
+    removedRisks: previous.biggestRisks.filter((r) => !current.biggestRisks.includes(r)),
+    newSkills: currentSkills.filter((s) => !prevSkills.includes(s)),
+    removedSkills: prevSkills.filter((s) => !currentSkills.includes(s)),
+    previousGeneratedAt: null, // set by caller
+  };
+}
+
 export async function getDashboardData(userId: string): Promise<{
   profile: DashboardProfile | null;
   recommendation: RecommendationRow | null;
+  briefDiff: BriefDiff | null;
   signals: SignalRow[];
 }> {
-  const [profile, recommendation] = await Promise.all([
+  const [profile, recommendations] = await Promise.all([
     db.userProfile.findUnique({
       where: { userId },
       include: { primarySkills: { select: { name: true } } },
     }),
-    db.careerRecommendation.findFirst({
-      where: { userId, isLatest: true },
+    db.careerRecommendation.findMany({
+      where: { userId },
       orderBy: { generatedAt: "desc" },
+      take: 2,
     }),
   ]);
 
-  if (!profile) return { profile: null, recommendation: null, signals: [] };
+  const recommendation = recommendations[0] ?? null;
+  const previous = recommendations[1] ?? null;
+
+  if (!profile) return { profile: null, recommendation: null, briefDiff: null, signals: [] };
 
   const userIndustries = [profile.currentIndustry, ...profile.targetIndustries].filter(
     (x): x is string => !!x
@@ -121,6 +153,39 @@ export async function getDashboardData(userId: string): Promise<{
     })
     .sort((a: SignalRow, b: SignalRow) => b.relevanceScore - a.relevanceScore);
 
+  const recRow: RecommendationRow | null = recommendation
+    ? {
+        id: recommendation.id,
+        generatedAt: recommendation.generatedAt.toISOString(),
+        skillsToAccelerate: recommendation.skillsToAccelerate as RecommendationRow["skillsToAccelerate"],
+        skillsToWatch: recommendation.skillsToWatch as RecommendationRow["skillsToWatch"],
+        rolesToTarget: recommendation.rolesToTarget as RecommendationRow["rolesToTarget"],
+        industriesToMoveToward: recommendation.industriesToMoveToward as RecommendationRow["industriesToMoveToward"],
+        keyNarrativeToTell: recommendation.keyNarrativeToTell,
+        incomeTrajectoryAssessment: recommendation.incomeTrajectoryAssessment,
+        biggestRisks: recommendation.biggestRisks,
+        biggestOpportunities: recommendation.biggestOpportunities,
+      }
+    : null;
+
+  let briefDiff: BriefDiff | null = null;
+  if (recRow && previous) {
+    const diff = computeBriefDiff(recRow, {
+      biggestOpportunities: previous.biggestOpportunities,
+      biggestRisks: previous.biggestRisks,
+      skillsToAccelerate: previous.skillsToAccelerate as { skill: string }[],
+    });
+    diff.previousGeneratedAt = previous.generatedAt.toISOString();
+    const hasChanges =
+      diff.newOpportunities.length > 0 ||
+      diff.removedOpportunities.length > 0 ||
+      diff.newRisks.length > 0 ||
+      diff.removedRisks.length > 0 ||
+      diff.newSkills.length > 0 ||
+      diff.removedSkills.length > 0;
+    briefDiff = hasChanges ? diff : null;
+  }
+
   return {
     profile: {
       onboardingComplete: profile.onboardingComplete,
@@ -131,20 +196,8 @@ export async function getDashboardData(userId: string): Promise<{
       primarySkillNames: userSkills,
       incomeGoal: profile.incomeGoal,
     },
-    recommendation: recommendation
-      ? {
-          id: recommendation.id,
-          generatedAt: recommendation.generatedAt.toISOString(),
-          skillsToAccelerate: recommendation.skillsToAccelerate as RecommendationRow["skillsToAccelerate"],
-          skillsToWatch: recommendation.skillsToWatch as RecommendationRow["skillsToWatch"],
-          rolesToTarget: recommendation.rolesToTarget as RecommendationRow["rolesToTarget"],
-          industriesToMoveToward: recommendation.industriesToMoveToward as RecommendationRow["industriesToMoveToward"],
-          keyNarrativeToTell: recommendation.keyNarrativeToTell,
-          incomeTrajectoryAssessment: recommendation.incomeTrajectoryAssessment,
-          biggestRisks: recommendation.biggestRisks,
-          biggestOpportunities: recommendation.biggestOpportunities,
-        }
-      : null,
+    recommendation: recRow,
+    briefDiff,
     signals,
   };
 }
