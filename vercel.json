@@ -1,16 +1,3 @@
 {
-  "crons": [
-    {
-      "path": "/api/scrape/run",
-      "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/threat-level/score",
-      "schedule": "0 3 * * *"
-    },
-    {
-      "path": "/api/digest/send",
-      "schedule": "0 8 * * 1"
-    }
-  ]
+  "crons": []
 }
